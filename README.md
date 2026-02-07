@@ -4,7 +4,6 @@
 
 At this point, you should have successfully installed all required **ACP Lab core packages**.
 
-add gif video /video/simulator_mujoco.gif
 
 To use the **ACP MuJoCo Simulator** for payload transportation, we recommend creating a **dedicated ROS 2 workspace**:
 
