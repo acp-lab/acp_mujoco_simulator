@@ -15,9 +15,6 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(quadrotor_msgs REQUIRED)
 
-install(DIRECTORY launch
-         DESTINATION share/${PROJECT_NAME})
-
 install(DIRECTORY model
 DESTINATION share/${PROJECT_NAME})
 
