@@ -1,0 +1,60 @@
+<mujoco model="Quadrotor Acro Simulation">
+  <compiler angle="radian" meshdir="assets" />
+  
+  <option timestep="0.003" gravity="0 0 -9.81">
+    <flag energy="enable" contact="enable"/>
+  </option>
+
+  <asset>
+    <texture name="texchecker" type="2d" builtin="checker" width="512" height="512" rgb1="0.8 0.8 0.8" rgb2="0.2 0.2 0.2" />
+    <material name="matchecker" texture="texchecker" texrepeat="4 4" reflectance="0.2" />
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="10 10 0.1" material="matchecker" condim="3"/>
+
+    <body name="drone_1" pos="0 0 2" euler="0 0 0">
+      <joint name="drone_1" type="free" damping="0.001" armature="0" pos="0 0 0"/>
+      
+      <geom name="drone_1_core" type="box" size="0.035 0.035 0.015" rgba="1.0 1.0 0.0 1.0" mass=".85"/>
+      
+      <geom name="drone_1_a00" type="box" pos=".071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0 0 0.383" rgba="1 0.5 0 1" mass=".035"/>
+      <geom name="drone_1_a10" type="box" pos=".071 -0.071 0.0" size="0.05 0.01 0.0025" quat=".383 0 0 0.924" rgba="1 0.5 0 1" mass=".035"/>
+      <geom name="drone_1_a20" type="box" pos="-0.071 -0.071 0.0" size="0.05 0.01 0.0025" quat="-.383 0 0 0.924" rgba="1 0.5 0 1" mass=".035"/>
+      <geom name="drone_1_a30" type="box" pos="-.071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0 0 -0.383" rgba="1 0.5 0 1" mass=".035"/>
+
+      <geom name="drone_1_thruster00" type="cylinder" pos="0.1 0.1 0.01" size="0.03 0.0025" rgba="0 0 0 1" mass=".015"/>
+      <geom name="drone_1_thruster10" type="cylinder" pos="0.1 -0.1 0.01" size="0.03 0.0025" rgba="0 0 0 1" mass=".015"/>
+      <geom name="drone_1_thruster20" type="cylinder" pos="-0.1 -0.1 0.01" size="0.03 0.0025" rgba="0 0 0 1" mass=".015"/>
+      <geom name="drone_1_thruster30" type="cylinder" pos="-0.1 0.1 0.01" size="0.03 0.0025" rgba="0 0 0 1" mass=".015"/>
+
+      <site name="drone_1_imu" pos="0 0 0"/>
+      <site name="drone_1_thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0.3"/>
+      <site name="drone_1_rateX" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0.3"/>
+      <site name="drone_1_rateY" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0.3"/>
+      <site name="drone_1_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0.3"/>
+      
+      <camera name="drone_1_camera" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
+    </body>
+
+    <body name="payload" pos="1 0 0.02">
+      <joint type="free" damping="0.001"/>
+      <geom type="sphere" size="0.05" rgba="0 0 1 0.8" mass="0.1"/>
+      <site name="payload_connection_site" pos="0.0 0.0 0.05"/>
+    </body>
+
+  </worldbody>
+
+  <actuator>
+    <motor site="drone_1_thrust" name="drone_1_body_thrust" ctrllimited="true" ctrlrange="0 40.0" gear="0 0 1 0 0 0"/>
+    <motor site="drone_1_rateX"  name="drone_1_x_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 1 0 0"/>
+    <motor site="drone_1_rateY"  name="drone_1_y_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 0 1 0"/>
+    <motor site="drone_1_rateZ"  name="drone_1_z_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 0 0 1"/>
+  </actuator>
+
+  <sensor>
+    <accelerometer name="drone_1_accel" site="drone_1_imu" />
+    <gyro name="drone_1_gyro" site="drone_1_imu" />
+  </sensor>
+</mujoco>

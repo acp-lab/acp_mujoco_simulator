@@ -1,0 +1,100 @@
+<mujoco model="MuJoCo Model">
+  <!--Compiler Options-->
+  <compiler angle="radian"/>
+  <option timestep="0.01" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" jacobian="sparse">
+    <flag energy="enable" contact="enable"/>
+  </option>
+
+<extension>
+  <!-- Other plugins … (no configs on these if you don't need them) -->
+  <plugin plugin="MujocoRosUtils::ClockPublisher"/>
+  <plugin plugin="MujocoRosUtils::ImagePublisher"/>
+  <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
+  <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
+</extension>
+
+  <asset>
+  <texture name="texchecker" type="2d" builtin="checker" width="512" height="512" 
+           rgb1="0.8 0.8 0.8" rgb2="0.2 0.2 0.2" />
+  <material name="matchecker" texture="texchecker" texrepeat="4 4" 
+            reflectance="0.2" shininess="0.5" specular="0.3" />
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="20 20 0.1" material="matchecker" 
+      rgba="1 1 1 1" friction="1.0 0.005 0.0001" condim="3"/>
+
+      <!--Quadrotor 0 -->
+    <body name="drone_2" pos="0.0 0.0 2" euler="0 0 0">
+      <joint name="drone_2" type="free" damping="0.001" armature="0" pos="0 0 0"/>
+
+      <!-- Core: bright yellow for visibility -->
+      <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.035 0.035 0.015"
+            rgba="1.0 1.0 0.0 1.0" mass=".84" friction="1.0 0.005 0.0001"/>
+
+      <!-- Arms: bright orange -->
+      <geom name="a00" type="box" pos=".071 0.071 0.0" size="0.05 0.01 0.0025"
+            quat=".924 0.0 0.0 0.383" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+
+      <geom name="a10" type="box" pos=".071 -0.071 0.0" size="0.05 0.01 0.0025"
+            quat=".383 0.0 0.0 0.924" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+
+      <geom name="a20" type="box" pos="-0.071 -0.071 0.0" size="0.05 0.01 0.0025"
+            quat="-.383 0.0 0.0 0.924" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+
+      <geom name="a30" type="box" pos="-.071 0.071 0.0" size="0.05 0.01 0.0025"
+            quat=".924 0.0 0.0 -0.383" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+
+      <!-- Thrusters: black for contrast -->
+      <geom name="thruster00" type="cylinder" pos="0.1 0.1 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster10" type="cylinder" pos="0.1 -0.1 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster20" type="cylinder" pos="-0.1 -0.1 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster30" type="cylinder" pos="-0.1 0.1 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+
+      <!-- Axes remain unchanged -->
+      <site name="qcX" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005"
+            quat="1.0 0.0 0.0 0." rgba="1 0 0 1"/>
+      <site name="qcY" type="box" pos="0.0 0.05 0.0" size="0.05 0.005 0.005"
+            quat="0.707 0.0 0.0 0.707" rgba="0 1 0 1"/>
+      <site name="qcZ" type="box" pos="0.0 0.0 0.05" size="0.05 0.005 0.005"
+            quat="-0.707 0.0 0.707 0." rgba="0 0 1 1"/>
+
+      <!-- Actuator sites: bright cyan (unchanged) -->
+      <site name="thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" quat="1.0 0.0 0.0 0." rgba="0 1 1 1"/>
+      <site name="rateX" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateY" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateZ" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="imu" pos="0 0 0"/>
+      <camera name="camera_0" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
+    </body>
+  </worldbody>
+
+<actuator>
+    <motor ctrllimited="true" ctrlrange="0 40.0" gear="0 0. 1. 0. 0. 0." site="thrust" name="body_thrust"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 1. 0. 0." site="rateX" name="x_moment"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 1. 0." site="rateY" name="y_moment"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
+
+    <plugin name="SO3_ctrl_1" plugin="MujocoRosUtils::WrenchToActuators" joint="drone_2">
+        <config key="actuator_fz"  value="body_thrust"/>
+        <config key="actuator_tx"  value="x_moment"/>
+        <config key="actuator_ty"  value="y_moment"/>
+        <config key="actuator_tz"  value="z_moment"/>
+        <config key="control_hz"   value="500"/>
+    </plugin>
+</actuator>
+
+  <sensor>
+    <plugin name="odom_publisher_drone_1" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="drone_2">
+      <config key="frame_id" value="world"/>
+      <config key="publish_rate" value="240"/>
+    </plugin>
+    <gyro name="drone_angular_velocity" site="imu" noise="0.01"/>
+    <accelerometer name="drone_linacc" site="imu" noise="0.01"/>
+  </sensor>
+</mujoco>

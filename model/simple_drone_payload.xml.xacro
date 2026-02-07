@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="MuJoCo Model">
+  
+  <xacro:arg name="drone_prefix" default="drone"/>
+  <xacro:arg name="payload_odom_topic" default="payload/odom"/>
+
+  <compiler angle="radian"/>
+  <option timestep="0.01" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" jacobian="sparse">
+    <flag energy="enable" contact="enable"/>
+  </option>
+
+  <extension>
+    <plugin plugin="MujocoRosUtils::ClockPublisher"/>
+    <plugin plugin="MujocoRosUtils::PosePublisher"/>
+    <plugin plugin="MujocoRosUtils::ImagePublisher"/>
+    <plugin plugin="MujocoRosUtils::ExternalForce"/>
+    <plugin plugin="MujocoRosUtils::SensorPublisher"/>
+    <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
+    <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
+  </extension>
+
+  <asset>
+    <texture name="texchecker" type="2d" builtin="checker" width="512" height="512" rgb1="0.8 0.8 0.8" rgb2="0.2 0.2 0.2" />
+    <material name="matchecker" texture="texchecker" texrepeat="4 4" reflectance="0.2" shininess="0.5" specular="0.3" />
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="20 20 0.1" material="matchecker" rgba="1 1 1 1" friction="1.0 0.005 0.0001" condim="3"/>
+
+    <body name="$(arg drone_prefix)_0" pos="0.0 0.0 2" euler="0 0 0">
+      <joint name="$(arg drone_prefix)_0" type="free" damping="0.001" armature="0" pos="0 0 0"/>
+      <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.035 0.035 0.015" rgba="1.0 1.0 0.0 1.0" mass=".84" friction="1.0 0.005 0.0001"/>
+      <geom name="a00" type="box" pos=".071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0.0 0.0 0.383" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+      <geom name="a10" type="box" pos=".071 -0.071 0.0" size="0.05 0.01 0.0025" quat=".383 0.0 0.0 0.924" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+      <geom name="a20" type="box" pos="-0.071 -0.071 0.0" size="0.05 0.01 0.0025" quat="-.383 0.0 0.0 0.924" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+      <geom name="a30" type="box" pos="-.071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0.0 0.0 -0.383" rgba="1.0 0.5 0.0 1.0" mass=".025"/>
+      <geom name="thruster00" type="cylinder" pos="0.1 0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster10" type="cylinder" pos="0.1 -0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster20" type="cylinder" pos="-0.1 -0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <geom name="thruster30" type="cylinder" pos="-0.1 0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 1.0" mass=".015"/>
+      <site name="qcX" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat="1.0 0.0 0.0 0." rgba="1 0 0 1"/>
+      <site name="qcY" type="box" pos="0.0 0.05 0.0" size="0.05 0.005 0.005" quat="0.707 0.0 0.0 0.707" rgba="0 1 0 1"/>
+      <site name="qcZ" type="box" pos="0.0 0.0 0.05" size="0.05 0.005 0.005" quat="-0.707 0.0 0.707 0." rgba="0 0 1 1"/>
+      <site name="thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" quat="1.0 0.0 0.0 0." rgba="0 1 1 1"/>
+      <site name="rateX" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateY" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateZ" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="imu" pos="0 0 0"/>
+      <site name="payload_point_$(arg drone_prefix)_0" pos="0.0 0.0 0.0"/>
+      <camera name="camera_0" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
+    </body>
+
+    <body name="payload" pos="0.0 0.0 1.0">
+      <joint name="payload" pos="0 0 0" type="free" damping="0.001"/>
+      <geom name="payload" type="sphere" size="0.05 0.05 0.05" rgba="0 0 1 0.8" mass="0.1" friction="1.0 0.005 0.0001"/>
+      <site name="payload_point" pos="0.0 0.0 0.0"/>
+      <site name="load_X" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat="1.0 0.0 0.0 0." rgba="1 0 0 1"/>
+      <site name="load_Y" type="box" pos="0.0 0.05 0.0" size="0.05 0.005 0.005" quat="0.707 0.0 0.0 0.707" rgba="0 1 0 1"/>
+      <site name="load_Z" type="box" pos="0.0 0.0 0.05" size="0.05 0.005 0.005" quat="-0.707 0.0 0.707 0." rgba="0 0 1 1"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor ctrllimited="true" ctrlrange="0 40.0" gear="0 0. 1. 0. 0. 0." site="thrust" name="body_thrust"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 1. 0. 0." site="rateX" name="x_moment"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 1. 0." site="rateY" name="y_moment"/>
+    <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
+
+    <plugin name="SO3_0" plugin="MujocoRosUtils::WrenchToActuators" joint="$(arg drone_prefix)_0">
+      <config key="topic_name" value="/$(arg drone_prefix)_0/position_cmd"/>
+      <config key="actuator_fz" value="body_thrust"/>
+      <config key="actuator_tx" value="x_moment"/>
+      <config key="actuator_ty" value="y_moment"/>
+      <config key="actuator_tz" value="z_moment"/>
+      <config key="control_hz" value="500"/>
+      <config key="body_name" value="$(arg drone_prefix)_0"/>
+    </plugin>
+  </actuator>
+
+  <tendon>
+    <spatial name="rope0" limited="true" range="0 1" width=".0005">
+      <site site="payload_point_$(arg drone_prefix)_0"/>
+      <site site="payload_point"/>
+    </spatial>
+  </tendon>
+
+  <sensor>
+    <plugin name="odom_publisher_$(arg drone_prefix)_0" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="$(arg drone_prefix)_0">
+      <config key="frame_id" value="world"/>
+      <config key="odom_topic_name" value="$(arg drone_prefix)_0/odom"/>
+      <config key="publish_rate" value="100"/>
+      <config key="child_frame_id" value="$(arg drone_prefix)_0"/>
+    </plugin>
+
+    <plugin name="odom_payload" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
+      <config key="frame_id" value="world"/>
+      <config key="odom_topic_name" value="$(arg payload_odom_topic)"/>
+      <config key="publish_rate" value="100"/>
+      <config key="child_frame_id" value="payload"/>
+    </plugin>
+
+    <plugin name="image_publisher_0" plugin="MujocoRosUtils::ImagePublisher" objtype="camera" objname="camera_0">
+      <config key="frame_id" value="camera_0"/>
+      <config key="color_topic_name" value="/$(arg drone_prefix)_0/image/color"/>
+      <config key="depth_topic_name" value="/$(arg drone_prefix)_0/image/depth"/>
+      <config key="info_topic_name" value="/$(arg drone_prefix)_0/image/camera_info"/>
+      <config key="height" value="240"/>
+      <config key="width" value="320"/>
+      <config key="publish_rate" value="30"/>
+    </plugin>
+  </sensor>
+</mujoco>
