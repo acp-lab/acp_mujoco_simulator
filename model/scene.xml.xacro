@@ -1,5 +1,13 @@
 <?xml version="1.0"?>
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Multi-Drone Scene">
+  
+  <xacro:arg name="quad_name" default="quadrotor"/>
+  <xacro:arg name="init_x" default="0.0"/>
+  <xacro:arg name="init_y" default="0.0"/>
+  <xacro:arg name="init_z" default="0.02"/>
+  <xacro:arg name="init_roll"  default="0.0"/>
+  <xacro:arg name="init_pitch" default="0.0"/>
+  <xacro:arg name="init_yaw"   default="0.0"/>
 
   <xacro:include filename="quadrotor_macro.xml.xacro" />
 
@@ -34,7 +42,7 @@
     <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
     <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
 
-    <xacro:quadrotor_body prefix="quadrotor" pos="0 0 0.02" euler="0 0 0" />
+    <xacro:quadrotor_body prefix="$(arg quad_name)" pos="$(arg init_x) $(arg init_y) $(arg init_z)" euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)" />
 
     <body name="payload" pos="1 0 0.02">
       <joint type="free" damping="0.001"/>
@@ -56,21 +64,21 @@
   </worldbody>
 
   <actuator>
-    <xacro:quadrotor_actuators prefix="quadrotor" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name)" />
   </actuator>
 
   <sensor>
-    <xacro:quadrotor_physical_sensors prefix="quadrotor" />
-    <xacro:quadrotor_sensor_plugins prefix="quadrotor" />
+    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
+    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
       <config key="publish_rate" value="240"/>
-      <config key="topic_prefix" value="quadrotor"/>
+      <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
   </sensor>
 
   <tendon>
     <spatial name="rope0" limited="true" range="0 1" width=".0005">
-      <site site="quadrotor_payload_site"/>
+      <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
   </tendon>
