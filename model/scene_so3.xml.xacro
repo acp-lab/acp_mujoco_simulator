@@ -9,7 +9,7 @@
   <xacro:arg name="init_pitch" default="0.0"/>
   <xacro:arg name="init_yaw"   default="0.0"/>
 
-  <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
+  <xacro:include filename="quadrotor_so3_macro.xml.xacro" />
 
   <compiler angle="radian"/>
   <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
@@ -21,6 +21,7 @@
     <plugin plugin="MujocoRosUtils::ImuPublisher"/>
     <plugin plugin="MujocoRosUtils::AcroMode"/>
     <plugin plugin="MujocoRosUtils::LowLevelMode"/>
+    <plugin plugin="MujocoRosUtils::So3Mode"/>
   </extension>
 
   <asset>
@@ -76,4 +77,10 @@
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
   </sensor>
+  <tendon>
+    <spatial name="rope0" limited="true" range="0 1" width=".0005">
+      <site site="$(arg quad_name)_payload_site"/>
+      <site site="payload_connection_site"/>
+    </spatial>
+  </tendon>
 </mujoco>
