@@ -8,11 +8,8 @@
   <xacro:arg name="init_roll"  default="0.0"/>
   <xacro:arg name="init_pitch" default="0.0"/>
   <xacro:arg name="init_yaw"   default="0.0"/>
-  <xacro:arg name="ctrl_mode" default="acro"/>
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
-  <xacro:include filename="quadrotor_lowlevel_macro.xml.xacro" />
-
 
   <compiler angle="radian"/>
   <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
