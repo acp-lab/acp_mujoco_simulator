@@ -76,10 +76,4 @@
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
   </sensor>
-  <tendon>
-    <spatial name="rope0" limited="true" range="0 1" width=".0005">
-      <site site="$(arg quad_name)_payload_site"/>
-      <site site="payload_connection_site"/>
-    </spatial>
-  </tendon>
 </mujoco>
