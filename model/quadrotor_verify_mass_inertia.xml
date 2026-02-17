@@ -1,5 +1,5 @@
 <mujoco model="Quadrotor Acro Simulation">
-  <compiler angle="radian" meshdir="assets"/>
+  <compiler angle="radian" meshdir="assets" />
   
   <option timestep="0.003" gravity="0 0 -9.81">
     <flag energy="enable" contact="enable"/>
@@ -40,9 +40,10 @@
 
     <body name="payload" pos="1 0 0.02">
       <joint type="free" damping="0.001"/>
-      <geom type="sphere" size="0.05" rgba="0 0 1 0.8" mass="0.1"/>
+      <geom type="sphere" size="0.05" rgba="0 0 1 0.8" mass="0.1128"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.05"/>
     </body>
+
   </worldbody>
 
   <actuator>
