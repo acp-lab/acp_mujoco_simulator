@@ -8,14 +8,13 @@
   <xacro:arg name="init_roll"  default="0.0"/>
   <xacro:arg name="init_pitch" default="0.0"/>
   <xacro:arg name="init_yaw"   default="0.0"/>
-  <xacro:arg name="ctrl_mode" default="acro"/>
-
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
-  <xacro:include filename="quadrotor_lowlevel_macro.xml.xacro" />
+  <xacro:include filename="humanoid_macro.xml.xacro"/>
 
 
-  <compiler angle="radian"/>
+  <compiler angle="radian" meshdir="/home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/humanoid_resource/meshes"/>
+
   <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
 
   <extension>
@@ -28,30 +27,34 @@
   </extension>
 
   <asset>
-    <texture name="texwood" type="2d" builtin="gradient" width="512" height="512" 
-             rgb1="0.80 0.65 0.45" rgb2="0.65 0.50 0.35" />
-    <material name="matwood" texture="texwood" texrepeat="1 15" 
-              reflectance="0.02" shininess="0.05" specular="0.1" />
-
     <material name="mat_red"   rgba="0.8 0.1 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
     <material name="mat_green" rgba="0.1 0.8 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
     <material name="mat_blue"  rgba="0.1 0.1 0.8 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+
+    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+
+    <xacro:g1_humanoid_assets prefix="g1"/>
+
   </asset>
 
   <worldbody>
-    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
-    
-    <geom name="floor" type="box" pos="2.5 0 -0.05" size="5.5 2 0.05" material="matwood" condim="3"/>
+    <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
 
     <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
     <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
     <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
 
     <xacro:quadrotor_body prefix="$(arg quad_name)" pos="$(arg init_x) $(arg init_y) $(arg init_z)" euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)" />
+    <xacro:g1_humanoid_body prefix="g1" pos="3 0 0.793" euler="0 0 0"/>
 
-    <body name="payload" pos="1 0 0.02">
-      <joint type="free" damping="0.001"/>
-      <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1"/>
+
+    <body name="payload" pos="0.8 0 0.02">
+      <joint type="free" damping="0.01"/>
+      <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1128"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
     </body>
 
@@ -80,9 +83,8 @@
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
   </sensor>
-
   <tendon>
-    <spatial name="rope0" limited="true" range="0 1" width=".0005">
+    <spatial name="rope0" limited="true" range="0 0.8" width=".0005">
       <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
