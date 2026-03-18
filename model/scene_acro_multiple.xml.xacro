@@ -1,20 +1,33 @@
 <?xml version="1.0"?>
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Multi-Drone Scene">
   
-  <xacro:arg name="quad_name" default="quadrotor"/>
-  <xacro:arg name="init_x" default="0.0"/>
-  <xacro:arg name="init_y" default="0.0"/>
-  <xacro:arg name="init_z" default="0.02"/>
-  <xacro:arg name="init_roll"  default="0.0"/>
-  <xacro:arg name="init_pitch" default="0.0"/>
-  <xacro:arg name="init_yaw"   default="0.0"/>
+  <xacro:arg name="quad_name_1" default="quadrotor1"/>
+  <xacro:arg name="init_x_1" default="0.0"/>
+  <xacro:arg name="init_y_1" default="0.0"/>
+  <xacro:arg name="init_z_1" default="0.02"/>
+  <xacro:arg name="init_roll_1"  default="0.0"/>
+  <xacro:arg name="init_pitch_1" default="0.0"/>
+  <xacro:arg name="init_yaw_1"   default="0.0"/>
+
+  <xacro:arg name="quad_name_2" default="quadrotor2"/>
+  <xacro:arg name="init_x_2" default="0.3"/>
+  <xacro:arg name="init_y_2" default="0.3"/>
+  <xacro:arg name="init_z_2" default="0.02"/>
+  <xacro:arg name="init_roll_2"  default="0.0"/>
+  <xacro:arg name="init_pitch_2" default="0.0"/>
+  <xacro:arg name="init_yaw_2"   default="0.0"/>
+
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
 
 
   <compiler angle="radian"/>
 
-  <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+  <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4">
+    <flag contact="disable"/>
+  </option>
+
+
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -46,10 +59,11 @@
     <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
     <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
 
-    <xacro:quadrotor_body prefix="$(arg quad_name)" pos="$(arg init_x) $(arg init_y) $(arg init_z)" euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)" />
+    <xacro:quadrotor_body prefix="$(arg quad_name_1)" pos="$(arg init_x_1) $(arg init_y_1) $(arg init_z_1)" euler="$(arg init_roll_1) $(arg init_pitch_1) $(arg init_yaw_1)" />
+    <xacro:quadrotor_body prefix="$(arg quad_name_2)" pos="$(arg init_x_2) $(arg init_y_2) $(arg init_z_2)" euler="$(arg init_roll_2) $(arg init_pitch_2) $(arg init_yaw_2)" />
 
 
-    <body name="payload" pos="0.0 0 0.02">
+    <body name="payload" pos="0.3 0.3 1.0">
       <joint type="free" damping="0.01"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1128"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
@@ -64,21 +78,32 @@
   </worldbody>
 
   <actuator>
-    <xacro:quadrotor_actuators prefix="$(arg quad_name)" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name_1)" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name_2)" />
   </actuator>
 
   <sensor>
-    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
-    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
+    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name_1)" />
+    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name_1)" />
+    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name_2)" />
+    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name_2)" />
+
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
       <config key="publish_rate" value="240"/>
-      <config key="topic_prefix" value="$(arg quad_name)"/>
+      <config key="topic_prefix" value="$(arg quad_name_1)"/>
     </plugin>
+
   </sensor>
   <tendon>
-    <spatial name="rope0" limited="true" range="0 0.8" width=".0005">
-      <site site="$(arg quad_name)_payload_site"/>
+    <spatial name="rope1" limited="true" range="0 0.8" width=".0005">
+      <site site="$(arg quad_name_1)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
+
+    <spatial name="rope2" limited="true" range="0 0.8" width=".0005">
+      <site site="$(arg quad_name_2)_payload_site"/>
+      <site site="payload_connection_site"/>
+    </spatial>
+      
   </tendon>
 </mujoco>
