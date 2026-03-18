@@ -38,9 +38,9 @@
 
   <xacro:macro name="quadrotor_actuators" params="prefix">
     <motor site="${prefix}_thrust" name="${prefix}_body_thrust" ctrllimited="true" ctrlrange="0 82.0" gear="0 0 1 0 0 0"/>
-    <motor site="${prefix}_rateX"  name="${prefix}_x_moment" ctrllimited="true" ctrlrange="-0.3 0.3" gear="0 0 0 1 0 0"/>
-    <motor site="${prefix}_rateY"  name="${prefix}_y_moment" ctrllimited="true" ctrlrange="-0.3 0.3" gear="0 0 0 0 1 0"/>
-    <motor site="${prefix}_rateZ"  name="${prefix}_z_moment" ctrllimited="true" ctrlrange="-0.3 0.3" gear="0 0 0 0 0 1"/>
+    <motor site="${prefix}_rateX"  name="${prefix}_x_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 1 0 0"/>
+    <motor site="${prefix}_rateY"  name="${prefix}_y_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 0 1 0"/>
+    <motor site="${prefix}_rateZ"  name="${prefix}_z_moment" ctrllimited="true" ctrlrange="-0.5 0.5" gear="0 0 0 0 0 1"/>
     
     <plugin name="lowlevel_ctrl_${prefix}" plugin="MujocoRosUtils::LowLevelMode" joint="${prefix}">
       <config key="actuator_fz"  value="${prefix}_body_thrust"/>
