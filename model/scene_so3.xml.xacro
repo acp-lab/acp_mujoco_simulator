@@ -1,13 +1,23 @@
 <?xml version="1.0"?>
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Multi-Drone Scene">
   
-  <xacro:arg name="quad_name" default="quadrotor"/>
+  <xacro:arg name="quad_names" default="quadrotor"/>
+  <xacro:arg name="rho_list" default="0.0 0.0 0.0"/>
+  <xacro:arg name="cable_length" default="0.5 0.5 0.5"/>
   <xacro:arg name="init_x" default="0.0"/>
   <xacro:arg name="init_y" default="0.0"/>
   <xacro:arg name="init_z" default="0.02"/>
   <xacro:arg name="init_roll"  default="0.0"/>
   <xacro:arg name="init_pitch" default="0.0"/>
   <xacro:arg name="init_yaw"   default="0.0"/>
+  <xacro:arg name="payload_mass"   default="0.25"/>
+  <xacro:arg name="quad_mass"   default="1.08"/>
+  <xacro:arg name="payload" default="payload"/>
+
+  <!-- <xacro:property name="quad_list" value="${quad_names.split(' ')}"/> -->
+  <xacro:property name="quad_list" value="${'$(arg quad_names)'.split(' ')}"/>
+  <xacro:property name="rho_vecs" value="${'$(arg rho_list)'.split('|')}"/>
+  <xacro:property name="cable_len_list" value="${'$(arg cable_length)'.split(' ')}"/>
 
   <xacro:include filename="quadrotor_so3_macro.xml.xacro" />
 
@@ -40,17 +50,57 @@
     
     <geom name="floor" type="box" pos="2.5 0 -0.05" size="5.5 2 0.05" material="matwood" condim="3"/>
 
-    <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
-    <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
-    <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
-
-    <xacro:quadrotor_body prefix="$(arg quad_name)" pos="$(arg init_x) $(arg init_y) $(arg init_z)" euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)" />
-
-    <body name="payload" pos="0.6 0 0.02">
+    <body name="payload" pos="$(arg init_x) $(arg init_y) $(arg init_z)" euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)">
       <joint type="free" damping="0.001"/>
-      <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1128"/>
-      <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
+
+      <!-- Triangular plate: three edge geoms connecting rho vertices -->
+      <xacro:property name="v0" value="${[float(x) for x in rho_vecs[0].split()]}"/>
+      <xacro:property name="v1" value="${[float(x) for x in rho_vecs[1].split()]}"/>
+      <xacro:property name="v2" value="${[float(x) for x in rho_vecs[2].split()]}"/>
+
+      <geom name="payload_edge_01" type="capsule"
+            fromto="${v0[0]} ${v0[1]} ${v0[2]}   ${v1[0]} ${v1[1]} ${v1[2]}"
+            size="0.008"
+            mass="${float('$(arg payload_mass)') / 3.0}"
+            rgba="0.6 0.3 0.1 1"/>
+
+      <geom name="payload_edge_12" type="capsule"
+            fromto="${v1[0]} ${v1[1]} ${v1[2]}   ${v2[0]} ${v2[1]} ${v2[2]}"
+            size="0.008"
+            mass="${float('$(arg payload_mass)') / 3.0}"
+            rgba="0.6 0.3 0.1 1"/>
+
+      <geom name="payload_edge_20" type="capsule"
+            fromto="${v2[0]} ${v2[1]} ${v2[2]}   ${v0[0]} ${v0[1]} ${v0[2]}"
+            size="0.008"
+            mass="${float('$(arg payload_mass)') / 3.0}"
+            rgba="0.6 0.3 0.1 1"/>
+
+      <!-- Centroid attachment site -->
+      <xacro:property name="cx" value="${(v0[0] + v1[0] + v2[0]) / 3.0}"/>
+      <xacro:property name="cy" value="${(v0[1] + v1[1] + v2[1]) / 3.0}"/>
+      <xacro:property name="cz" value="${(v0[2] + v1[2] + v2[2]) / 3.0}"/>
+
+      <site name="payload_connection_site_0" pos="${v0[0]} ${v0[1]} ${v0[2]}"/>
+      <site name="payload_connection_site_1" pos="${v1[0]} ${v1[1]} ${v1[2]}"/>
+      <site name="payload_connection_site_2" pos="${v2[0]} ${v2[1]} ${v2[2]}"/>
     </body>
+    
+    <xacro:property name="q0_x" value="${float('$(arg init_x)') + v0[0]}"/>
+    <xacro:property name="q0_y" value="${float('$(arg init_y)') + v0[1]}"/>
+    <xacro:property name="q0_z" value="${float('$(arg init_z)') + v0[2]}"/>
+
+    <xacro:property name="q1_x" value="${float('$(arg init_x)') + v1[0]}"/>
+    <xacro:property name="q1_y" value="${float('$(arg init_y)') + v1[1]}"/>
+    <xacro:property name="q1_z" value="${float('$(arg init_z)') + v1[2]}"/>
+
+    <xacro:property name="q2_x" value="${float('$(arg init_x)') + v2[0]}"/>
+    <xacro:property name="q2_y" value="${float('$(arg init_y)') + v2[1]}"/>
+    <xacro:property name="q2_z" value="${float('$(arg init_z)') + v2[2]}"/>
+
+    <xacro:quadrotor_body prefix="${quad_list[0]}" pos="${q0_x} ${q0_y} ${q0_z + 0.01}" euler="0 0 $(arg init_yaw)" quad_mass="$(arg quad_mass)"/>
+    <xacro:quadrotor_body prefix="${quad_list[1]}" pos="${q1_x} ${q1_y} ${q1_z + 0.01}" euler="0 0 $(arg init_yaw)" quad_mass="$(arg quad_mass)"/>
+    <xacro:quadrotor_body prefix="${quad_list[2]}" pos="${q2_x} ${q2_y} ${q2_z + 0.01}" euler="0 0 $(arg init_yaw)" quad_mass="$(arg quad_mass)"/>
 
     <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
     <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
@@ -65,22 +115,44 @@
 
   </worldbody>
 
-  <actuator>
+  <!-- <actuator>
     <xacro:quadrotor_actuators prefix="$(arg quad_name)" />
+  </actuator> -->
+  <actuator>
+    <xacro:quadrotor_actuators prefix="${quad_list[0]}" />
+    <xacro:quadrotor_actuators prefix="${quad_list[1]}" />
+    <xacro:quadrotor_actuators prefix="${quad_list[2]}" />
   </actuator>
 
   <sensor>
-    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
-    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
+    <xacro:quadrotor_physical_sensors prefix="${quad_list[0]}" />
+    <xacro:quadrotor_sensor_plugins prefix="${quad_list[0]}" />
+    <xacro:quadrotor_physical_sensors prefix="${quad_list[1]}" />
+    <xacro:quadrotor_sensor_plugins prefix="${quad_list[1]}" />
+    <xacro:quadrotor_physical_sensors prefix="${quad_list[2]}" />
+    <xacro:quadrotor_sensor_plugins prefix="${quad_list[2]}" />
+
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
       <config key="publish_rate" value="240"/>
-      <config key="topic_prefix" value="$(arg quad_name)"/>
+      <config key="attach_sites" value="payload_connection_site_0|payload_connection_site_1|payload_connection_site_2"/>
+      <config key="quad_list" value="${quad_list[0]}|${quad_list[1]}|${quad_list[2]}"/>
+      <!-- <config key="topic_prefix" value="$(arg payload)"/> -->
     </plugin>
   </sensor>
   <tendon>
-    <spatial name="rope0" limited="true" range="0 0.6" width=".0005">
-      <site site="$(arg quad_name)_payload_site"/>
-      <site site="payload_connection_site"/>
+    <spatial name="rope_0" limited="true" range="0 ${cable_len_list[0]}" width=".0005">
+      <site site="${quad_list[0]}_payload_site"/>
+      <site site="payload_connection_site_0"/>
+    </spatial>
+
+    <spatial name="rope_1" limited="true" range="0 ${cable_len_list[0]}" width=".0005">
+      <site site="${quad_list[1]}_payload_site"/>
+      <site site="payload_connection_site_1"/>
+    </spatial>
+
+    <spatial name="rope_2" limited="true" range="0 ${cable_len_list[0]}" width=".0005">
+      <site site="${quad_list[2]}_payload_site"/>
+      <site site="payload_connection_site_2"/>
     </spatial>
   </tendon>
 </mujoco>
