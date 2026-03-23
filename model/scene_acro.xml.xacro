@@ -55,6 +55,11 @@
       <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
     </body>
 
+    <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_z" type="cylinder" fromto="0 0 0.01 0 0 0.51" size="0.01" rgba="0 0 1 0.1" contype="0" conaffinity="0" group="1"/>
