@@ -14,7 +14,7 @@
 
   <compiler angle="radian"/>
 
-  <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+  <option timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -23,6 +23,7 @@
     <plugin plugin="MujocoRosUtils::ImuPublisher"/>
     <plugin plugin="MujocoRosUtils::AcroMode"/>
     <plugin plugin="MujocoRosUtils::LowLevelMode"/>
+    <plugin plugin="MujocoRosUtils::ClockPublisher"/>
   </extension>
 
   <asset>
@@ -38,6 +39,13 @@
   </asset>
 
   <worldbody>
+
+    <plugin plugin="MujocoRosUtils::ClockPublisher">
+      <config key="topic_name" value="/clock"/>
+      <config key="publish_rate" value="100"/>
+      <config key="use_sim_time" value="false"/>
+    </plugin>
+
     <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
 
@@ -63,9 +71,6 @@
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_z" type="cylinder" fromto="0 0 0.01 0 0 0.51" size="0.01" rgba="0 0 1 0.1" contype="0" conaffinity="0" group="1"/>
-
-    <camera name="camera_pov" pos="-2.427 1.392 1.622" xyaxes="-0.216 -0.976 -0.000 0.227 -0.050 0.973"/>
-
   </worldbody>
 
   <actuator>
@@ -76,7 +81,7 @@
     <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
     <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
-      <config key="publish_rate" value="240"/>
+      <config key="publish_rate" value="100"/>
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
   </sensor>

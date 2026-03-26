@@ -24,8 +24,6 @@
       <site name="${prefix}_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 1"/>
 
       <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"/>
-      
-      <camera name="${prefix}_camera" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
     </body>
   </xacro:macro>
 
@@ -46,20 +44,20 @@
       <config key="actuator_tx"  value="${prefix}_x_moment"/>
       <config key="actuator_ty"  value="${prefix}_y_moment"/>
       <config key="actuator_tz"  value="${prefix}_z_moment"/>
-      <config key="control_hz"   value="500"/>
+      <config key="control_hz"   value="400"/>
       <config key="body_name"    value="${prefix}"/>
     </plugin>
   </xacro:macro>
 
   <xacro:macro name="quadrotor_sensor_plugins" params="prefix">
     <plugin name="${prefix}_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="${prefix}">
-      <config key="publish_rate" value="240"/>
+      <config key="publish_rate" value="100"/>
     </plugin>
     <plugin name="${prefix}_imu_pub" plugin="MujocoRosUtils::ImuPublisher">
       <config key="body_name"    value="${prefix}"/>
       <config key="accel_sensor" value="${prefix}_accel"/>
       <config key="gyro_sensor"  value="${prefix}_gyro"/>
-      <config key="publish_rate" value="200"/>
+      <config key="publish_rate" value="400"/>
     </plugin>
   </xacro:macro>
 </mujoco>
