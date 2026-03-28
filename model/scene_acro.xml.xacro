@@ -21,6 +21,7 @@
     <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
     <plugin plugin="MujocoRosUtils::SensorPublisher"/>
     <plugin plugin="MujocoRosUtils::ImuPublisher"/>
+    <plugin plugin="MujocoRosUtils::TensionPublisher"/>
     <plugin plugin="MujocoRosUtils::AcroMode"/>
     <plugin plugin="MujocoRosUtils::LowLevelMode"/>
     <plugin plugin="MujocoRosUtils::ClockPublisher"/>
@@ -77,6 +78,12 @@
     <xacro:quadrotor_actuators prefix="$(arg quad_name)" />
   </actuator>
 
+  <tendon>
+    <spatial name="rope0" limited="true" range="0 0.71" width=".0005">
+      <site site="$(arg quad_name)_payload_site"/>
+      <site site="payload_connection_site"/>
+    </spatial>
+  </tendon>
   <sensor>
     <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
     <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
@@ -84,11 +91,12 @@
       <config key="publish_rate" value="100"/>
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
+    <tendonlimitfrc tendon="rope0"/>
+    <plugin name="rope0_tension_pub" plugin="MujocoRosUtils::TensionPublisher">
+      <config key="tendon_name" value="rope0"/>
+      <config key="topic_prefix" value="$(arg quad_name)"/>
+      <config key="frame_id" value="payload_connection_site"/>
+      <config key="publish_rate" value="100"/>
+    </plugin>
   </sensor>
-  <tendon>
-    <spatial name="rope0" limited="true" range="0 0.71" width=".0005">
-      <site site="$(arg quad_name)_payload_site"/>
-      <site site="payload_connection_site"/>
-    </spatial>
-  </tendon>
 </mujoco>
