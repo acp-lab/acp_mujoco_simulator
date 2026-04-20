@@ -67,7 +67,7 @@
                           primitive_alpha="$(arg primitive_alpha)" />
 
 
-    <body name="payload" pos="0.7 0.0 0.02">
+    <body name="payload" pos="-0.7 0.0 0.02">
       <joint type="free" damping="0.01"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.2"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
