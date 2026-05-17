@@ -69,7 +69,7 @@
 
   <xacro:macro name="quadrotor_sensor_plugins" params="prefix">
     <plugin name="${prefix}_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="${prefix}">
-      <config key="publish_rate" value="100"/>
+      <config key="publish_rate" value="240"/>
     </plugin>
     <plugin name="${prefix}_imu_pub" plugin="MujocoRosUtils::ImuPublisher">
       <config key="body_name"    value="${prefix}"/>
