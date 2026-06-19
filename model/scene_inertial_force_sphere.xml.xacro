@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Inertial Force Sphere Scene">
+
+  <xacro:arg name="sphere_name" default="sphere"/>
+  <xacro:arg name="init_x" default="0.0"/>
+  <xacro:arg name="init_y" default="0.0"/>
+  <xacro:arg name="init_z" default="1.0"/>
+  <xacro:arg name="sphere_radius" default="0.05"/>
+  <xacro:arg name="sphere_mass" default="1.0"/>
+  <xacro:arg name="joint_damping" default="0.01"/>
+  <xacro:arg name="max_force" default="50.0"/>
+  <xacro:arg name="payload_name" default="payload"/>
+  <xacro:arg name="payload_x" default="0.0"/>
+  <xacro:arg name="payload_y" default="0.0"/>
+  <xacro:arg name="payload_z" default="0.29"/>
+  <xacro:arg name="payload_radius" default="0.03"/>
+  <xacro:arg name="payload_mass" default="0.2"/>
+  <xacro:arg name="payload_damping" default="0.002"/>
+  <xacro:arg name="cable_length" default="0.71"/>
+  <xacro:arg name="publish_rate" default="240"/>
+  <xacro:arg name="use_sim_time" default="false"/>
+
+  <compiler angle="radian"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4"/>
+
+  <extension>
+    <plugin plugin="MujocoRosUtils::ActuatorCommand"/>
+    <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
+    <plugin plugin="MujocoRosUtils::TensionPublisher"/>
+    <plugin plugin="MujocoRosUtils::ClockPublisher"/>
+  </extension>
+
+  <asset>
+    <material name="mat_red"   rgba="0.8 0.1 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0"/>
+    <material name="mat_green" rgba="0.1 0.8 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0"/>
+    <material name="mat_blue"  rgba="0.1 0.1 0.8 1" reflectance="0.01" shininess="0.01" specular="0.0"/>
+    <material name="sphere_mat" rgba="0.05 0.45 0.95 0.9" reflectance="0.05" shininess="0.1" specular="0.1"/>
+
+    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+
+  <worldbody>
+    <plugin plugin="MujocoRosUtils::ClockPublisher">
+      <config key="topic_name" value="/clock"/>
+      <config key="publish_rate" value="100"/>
+      <config key="use_sim_time" value="$(arg use_sim_time)"/>
+    </plugin>
+
+    <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
+    <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red"/>
+    <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green"/>
+    <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue"/>
+
+    <body name="$(arg sphere_name)" pos="$(arg init_x) $(arg init_y) $(arg init_z)">
+      <joint name="$(arg sphere_name)_x" type="slide" axis="1 0 0" damping="$(arg joint_damping)"/>
+      <joint name="$(arg sphere_name)_y" type="slide" axis="0 1 0" damping="$(arg joint_damping)"/>
+      <joint name="$(arg sphere_name)_z" type="slide" axis="0 0 1" damping="$(arg joint_damping)"/>
+      <geom name="$(arg sphere_name)_geom" type="sphere" size="$(arg sphere_radius)" mass="$(arg sphere_mass)" material="sphere_mat"/>
+      <site name="$(arg sphere_name)_center" pos="0 0 0" size="0.01" rgba="1 1 1 0.4"/>
+      <site name="$(arg sphere_name)_payload_site" pos="0 0 0"/>
+    </body>
+
+    <body name="$(arg payload_name)" pos="$(arg payload_x) $(arg payload_y) $(arg payload_z)">
+      <joint type="free" damping="$(arg payload_damping)"/>
+      <geom name="$(arg payload_name)_geom" type="sphere" size="$(arg payload_radius)" rgba="0 0 1 0.8" mass="$(arg payload_mass)"/>
+      <site name="payload_connection_site" pos="0 0 0"/>
+    </body>
+
+    <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+
+    <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
+    <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>
+    <geom name="origin_z" type="cylinder" fromto="0 0 0.01 0 0 0.51" size="0.01" rgba="0 0 1 0.1" contype="0" conaffinity="0" group="1"/>
+  </worldbody>
+
+  <actuator>
+    <motor name="$(arg sphere_name)_force_x" joint="$(arg sphere_name)_x" ctrllimited="true" ctrlrange="-$(arg max_force) $(arg max_force)" gear="1"/>
+    <motor name="$(arg sphere_name)_force_y" joint="$(arg sphere_name)_y" ctrllimited="true" ctrlrange="-$(arg max_force) $(arg max_force)" gear="1"/>
+    <motor name="$(arg sphere_name)_force_z" joint="$(arg sphere_name)_z" ctrllimited="true" ctrlrange="-$(arg max_force) $(arg max_force)" gear="1"/>
+
+    <plugin name="$(arg sphere_name)_force_x_cmd" plugin="MujocoRosUtils::ActuatorCommand" joint="$(arg sphere_name)_x">
+      <config key="actuator_name" value="$(arg sphere_name)_force_x"/>
+      <config key="topic_name" value="/$(arg sphere_name)/force_x"/>
+    </plugin>
+    <plugin name="$(arg sphere_name)_force_y_cmd" plugin="MujocoRosUtils::ActuatorCommand" joint="$(arg sphere_name)_y">
+      <config key="actuator_name" value="$(arg sphere_name)_force_y"/>
+      <config key="topic_name" value="/$(arg sphere_name)/force_y"/>
+    </plugin>
+    <plugin name="$(arg sphere_name)_force_z_cmd" plugin="MujocoRosUtils::ActuatorCommand" joint="$(arg sphere_name)_z">
+      <config key="actuator_name" value="$(arg sphere_name)_force_z"/>
+      <config key="topic_name" value="/$(arg sphere_name)/force_z"/>
+    </plugin>
+  </actuator>
+
+  <tendon>
+    <spatial name="rope0" limited="true" range="0 $(arg cable_length)" width=".0005">
+      <site site="$(arg sphere_name)_payload_site"/>
+      <site site="payload_connection_site"/>
+    </spatial>
+  </tendon>
+
+  <sensor>
+    <plugin name="$(arg sphere_name)_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="$(arg sphere_name)">
+      <config key="frame_id" value="world"/>
+      <config key="odom_topic_name" value="/$(arg sphere_name)/odom"/>
+      <config key="child_frame_id" value="$(arg sphere_name)"/>
+      <config key="publish_rate" value="$(arg publish_rate)"/>
+    </plugin>
+    <plugin name="$(arg payload_name)_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="$(arg payload_name)">
+      <config key="publish_rate" value="$(arg publish_rate)"/>
+      <config key="topic_prefix" value="$(arg sphere_name)"/>
+    </plugin>
+    <tendonlimitfrc tendon="rope0"/>
+    <plugin name="rope0_tension_pub" plugin="MujocoRosUtils::TensionPublisher">
+      <config key="tendon_name" value="rope0"/>
+      <config key="topic_prefix" value="$(arg sphere_name)"/>
+      <config key="frame_id" value="payload_connection_site"/>
+      <config key="publish_rate" value="$(arg publish_rate)"/>
+    </plugin>
+  </sensor>
+</mujoco>
