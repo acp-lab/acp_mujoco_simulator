@@ -95,8 +95,8 @@
 
   <tendon>
     <spatial name="rope0" limited="true" range="0 0.71" width=".0005">
-      <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
+      <site site="payload_connection_site_2"/>
     </spatial>
   </tendon>
 

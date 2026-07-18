@@ -1,0 +1,4 @@
+Fri Jul 17 23:48:44 2026
+ERROR: Error loading plugin library '/home/fer/payload_transportation_ws/mujoco-3.4.0/bin/mujoco_plugin/libMujocoRosUtils.so': libmujoco_ros_utils__rosidl_typesupport_cpp.so: cannot open shared object file: No such file or directory
+
+

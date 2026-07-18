@@ -1,0 +1,43 @@
+Zero-gravity wrench mapping simulation summary
+
+With the current XML <general> actuators, model.na is 4.
+Use data.ctrl for commanded scalar actuator input, data.act for delayed/filtered activation, and data.actuator_force for final scalar actuator output.
+
+desired profile: sine
+fixed thrust Fz: 5
+torque offset [Tx, Ty, Tz]: [0, 0, 0]
+torque amplitude [Tx, Ty, Tz]: [0.08, 0.05, 0.012]
+torque frequency [Tx, Ty, Tz] Hz: [0.7, 1.1, 1.6]
+torque phase [Tx, Ty, Tz] rad: [0, 1.5708, 0.785398]
+
+Model: quadrotor_verify_mass_inertia.xml
+CSV: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/wrench_mapping_results/direct_body_wrench_zero_gravity.csv
+nu: 4  na: 4  timestep: 0.003  nsteps: 1000
+control min: [5, -0.0799999, -0.0499981, -0.0119999]
+control max: [5, 0.08, 0.05, 0.012]
+activation min: [0, -0.0795213, -0.04927, -0.0116384]
+activation max: [5, 0.0795213, 0.0492706, 0.0116385]
+max abs allocation residual [Fz, Tx, Ty, Tz]: [0, 0, 0, 0]
+max abs wrench error [Fx, Fy, Fz, Tx, Ty, Tz]: [0, 0, 5, 0.0134738, 0.05, 0.00944477]
+rms wrench error [Fx, Fy, Fz, Tx, Ty, Tz]: [0, 0, 0.465778, 0.00959652, 0.0103006, 0.00324674]
+max abs act - ctrl: [5, 0.0134738, 0.05, 0.00944477]
+max abs actuator_force - act: [0, 0, 0, 0]
+max abs actuator_force - ctrl: [5, 0.0134738, 0.05, 0.00944477]
+
+Model: quadrotor_verify_mass_inertia_delay_and_actuators.xml
+CSV: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/wrench_mapping_results/rotor_allocated_wrench_zero_gravity.csv
+nu: 4  na: 4  timestep: 0.003  nsteps: 1000
+control min: [0.761024, 0.79669, 0.738187, 0.837049]
+control max: [1.524, 1.68893, 1.70623, 1.68756]
+activation min: [0, 0, 0, 0]
+activation max: [1.51819, 1.68035, 1.69803, 1.67977]
+max abs allocation residual [Fz, Tx, Ty, Tz]: [6.21725e-15, 5.20417e-16, 4.3715e-16, 1.11022e-16]
+max abs wrench error [Fx, Fy, Fz, Tx, Ty, Tz]: [0, 0, 5, 0.0134738, 0.05, 0.00944477]
+rms wrench error [Fx, Fy, Fz, Tx, Ty, Tz]: [0, 0, 0.465778, 0.00959652, 0.0103006, 0.00324674]
+max abs act - ctrl: [1.29339, 0.983579, 1.52143, 1.23358]
+max abs actuator_force - act: [0, 0, 0, 0]
+max abs actuator_force - ctrl: [1.29339, 0.983579, 1.52143, 1.23358]
+
+Direct-vs-rotor consistency:
+max abs actual wrench difference [Fx, Fy, Fz, Tx, Ty, Tz]: [0, 0, 7.10543e-15, 2.8276e-16, 3.05311e-16, 8.84709e-17]
+max abs free-joint qpos difference [x, y, z, qw, qx, qy, qz]: [1.25011e-13, 2.15827e-13, 1.12299e-13, 8.12683e-14, 4.80727e-14, 4.10227e-14, 3.75672e-14]

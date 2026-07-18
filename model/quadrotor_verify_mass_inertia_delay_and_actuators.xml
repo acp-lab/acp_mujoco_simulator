@@ -35,6 +35,34 @@
       <site name="drone_1_rateX" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0"/>
       <site name="drone_1_rateY" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0"/>
       <site name="drone_1_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 0"/>
+
+      <site name="drone_1_rotor1_site"
+            type="sphere"
+            pos="0.1 0.1 0.0"
+            size="0.005"
+            zaxis="0 0 1"
+            rgba="0 1 0 1"/>
+      
+      <site name="drone_1_rotor2_site"
+            type="sphere"
+            pos="0.1 -0.1 0.0"
+            size="0.005"
+            zaxis="0 0 1"
+            rgba="0 1 0 1"/>
+      
+      <site name="drone_1_rotor3_site"
+            type="sphere"
+            pos="-0.1 -0.1 0.0"
+            size="0.005"
+            zaxis="0 0 1"
+            rgba="0 1 0 1"/>
+      
+      <site name="drone_1_rotor4_site"
+            type="sphere"
+            pos="-0.1 0.1 0.0"
+            size="0.005"
+            zaxis="0 0 1"
+            rgba="0 1 0 1"/>
       
       <camera name="drone_1_camera" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
     </body>
@@ -46,39 +74,45 @@
     </body>
 
   </worldbody>
-
   <actuator>
-    <general site="drone_1_thrust" name="drone_1_body_thrust"
-             gear="0 0 1 0 0 0"
+    <general name="drone_1_rotor1"
+             site="drone_1_rotor1_site"
+             gear="0 0 1 0 0 0.015"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="0 40.0"
-             actlimited="true" actrange="0 40.0"
-             forcelimited="true" forcerange="0 40.0"
+             ctrllimited="true" ctrlrange="0 10"
+             actlimited="true" actrange="0 10"
+             forcelimited="true" forcerange="0 10"
              nsample="4" delay="0.012" interp="zoh"/>
-    <general site="drone_1_rateX"  name="drone_1_x_moment"
-             gear="0 0 0 1 0 0"
+
+    <general name="drone_1_rotor2"
+             site="drone_1_rotor2_site"
+             gear="0 0 1 0 0 -0.015"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
+             ctrllimited="true" ctrlrange="0 10"
+             actlimited="true" actrange="0 10"
+             forcelimited="true" forcerange="0 10"
              nsample="4" delay="0.012" interp="zoh"/>
-    <general site="drone_1_rateY"  name="drone_1_y_moment"
-             gear="0 0 0 0 1 0"
+
+    <general name="drone_1_rotor3"
+             site="drone_1_rotor3_site"
+             gear="0 0 1 0 0 0.015"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
+             ctrllimited="true" ctrlrange="0 10"
+             actlimited="true" actrange="0 10"
+             forcelimited="true" forcerange="0 10"
              nsample="4" delay="0.012" interp="zoh"/>
-    <general site="drone_1_rateZ"  name="drone_1_z_moment"
-             gear="0 0 0 0 0 1"
+
+    <general name="drone_1_rotor4"
+             site="drone_1_rotor4_site"
+             gear="0 0 1 0 0 -0.015"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
+             ctrllimited="true" ctrlrange="0 10"
+             actlimited="true" actrange="0 10"
+             forcelimited="true" forcerange="0 10"
              nsample="4" delay="0.012" interp="zoh"/>
   </actuator>
 

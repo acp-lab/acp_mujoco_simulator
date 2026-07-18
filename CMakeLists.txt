@@ -22,7 +22,7 @@ if(NOT DEFINED MUJOCO_ROOT_DIR)
   if(DEFINED ENV{MUJOCO_ROOT_DIR})
     set(MUJOCO_ROOT_DIR $ENV{MUJOCO_ROOT_DIR})
   elseif(DEFINED ENV{COLCON_PAYLOAD_WS_DIR})
-    set(MUJOCO_ROOT_DIR "$ENV{COLCON_PAYLOAD_WS_DIR}/mujoco-3.4.0")
+    set(MUJOCO_ROOT_DIR "$ENV{COLCON_PAYLOAD_WS_DIR}/mujoco-3.10.0")
   endif()
 endif()
 
@@ -37,9 +37,11 @@ set(MUJOCO_INCLUDE_DIR "${MUJOCO_ROOT_DIR}/include")
 set(MUJOCO_LIB_DIR "${MUJOCO_ROOT_DIR}/lib")
 set(MUJOCO_BIN_DIR "${MUJOCO_ROOT_DIR}/bin")
 
-file(GLOB LIB_MUJOCO
-  ${MUJOCO_BIN_DIR}/libmujoco[0-9][0-9][0-9].so
-  ${MUJOCO_LIB_DIR}/libmujoco.so.*)
+find_library(
+  LIB_MUJOCO
+  NAMES mujoco
+  PATHS ${MUJOCO_LIB_DIR} ${MUJOCO_BIN_DIR}
+  NO_DEFAULT_PATH)
 
 if(NOT LIB_MUJOCO)
   message(FATAL_ERROR "MuJoCo library not found under ${MUJOCO_ROOT_DIR}.")
