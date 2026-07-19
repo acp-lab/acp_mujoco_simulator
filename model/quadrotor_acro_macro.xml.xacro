@@ -56,34 +56,34 @@
              gear="0 0 1 0 0 0"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="0 40.0"
-             actlimited="true" actrange="0 40.0"
-             forcelimited="true" forcerange="0 40.0"
-             nsample="8" delay="0.015" interp="zoh"/>
+             ctrllimited="true" ctrlrange="0 80.0"
+             actlimited="true" actrange="0 80.0"
+             forcelimited="true" forcerange="0 80.0"
+             nsample="8" delay="0.018" interp="zoh"/>
     <general site="${prefix}_rateX" name="${prefix}_x_moment"
              gear="0 0 0 1 0 0"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
-             nsample="8" delay="0.015" interp="zoh"/>
+             ctrllimited="true" ctrlrange="-0.4 0.4"
+             actlimited="true" actrange="-0.4 0.4"
+             forcelimited="true" forcerange="-0.4 0.4"
+             nsample="8" delay="0.018" interp="zoh"/>
     <general site="${prefix}_rateY" name="${prefix}_y_moment"
              gear="0 0 0 0 1 0"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
-             nsample="8" delay="0.015" interp="zoh"/>
+             ctrllimited="true" ctrlrange="-0.4 0.4"
+             actlimited="true" actrange="-0.4 0.4"
+             forcelimited="true" forcerange="-0.4 0.4"
+             nsample="8" delay="0.018" interp="zoh"/>
     <general site="${prefix}_rateZ" name="${prefix}_z_moment"
              gear="0 0 0 0 0 1"
              dyntype="filterexact" dynprm="0.025"
              gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.5 0.5"
-             actlimited="true" actrange="-0.5 0.5"
-             forcelimited="true" forcerange="-0.5 0.5"
-             nsample="8" delay="0.015" interp="zoh"/>
+             ctrllimited="true" ctrlrange="-0.4 0.4"
+             actlimited="true" actrange="-0.4 0.4"
+             forcelimited="true" forcerange="-0.4 0.4"
+             nsample="8" delay="0.018" interp="zoh"/>
     
     <plugin name="acro_ctrl_${prefix}" plugin="MujocoRosUtils::AcroMode" joint="${prefix}">
       <config key="actuator_fz"  value="${prefix}_body_thrust"/>
