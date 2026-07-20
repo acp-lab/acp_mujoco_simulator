@@ -17,6 +17,7 @@
     <plugin plugin="MujocoRosUtils::SensorPublisher"/>
     <plugin plugin="MujocoRosUtils::ImuPublisher"/>
     <plugin plugin="MujocoRosUtils::TensionPublisher"/>
+    <plugin plugin="MujocoRosUtils::RotorMotor"/>
     <plugin plugin="MujocoRosUtils::AcroMode"/>
     <plugin plugin="MujocoRosUtils::LowLevelMode"/>
     <plugin plugin="MujocoRosUtils::ClockPublisher"/>

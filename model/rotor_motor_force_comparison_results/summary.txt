@@ -1,0 +1,42 @@
+Direct force actuator vs RotorMotor plugin comparison
+
+Direct force actuator:
+  ctrl = desired motor thrust [N]
+  act = delayed/filtered motor thrust [N]
+  actuator_force = applied motor thrust [N]
+
+RotorMotor plugin:
+  ctrl = desired rotor speed [rad/s]
+  act = actual rotor speed [rad/s]
+  actuator_force = kf * act^2 [N]
+
+kf: 2.110740925780823e-06 N/(rad/s)^2
+omega_max: 4000 rad/s
+kf * omega_max^2: 33.7719 N per motor
+force ctrlrange high: 33.7719 N per motor
+km_over_kf yaw gear ratio: 0.015
+tau: 0.025 s
+delay: 0.018 s
+nsample: 8
+dt: 0.002 s
+duration: 3 s
+warmup: 0.3 s
+
+Commanded motor-force profile:
+  offset: [4.6 4.5 4.4 4.7] N
+  amplitude: [1.  0.8 0.7 0.9] N
+  frequency: [0.4 0.6 0.8 0.5] Hz
+  phase: [0.       1.570796 0.785398 2.356194] rad
+
+Comparison metrics, RotorMotor plugin minus direct force actuator:
+  max abs motor thrust error [N]: [0.042972 0.051468 0.059863 0.048301]
+  rms motor thrust error [N]: [0.030608 0.03626  0.040968 0.033753]
+  max abs wrench error [Fz, Tx, Ty, Tz]: [0.131587 0.010039 0.011105 0.002674]
+  rms wrench error [Fz, Tx, Ty, Tz]: [0.070978 0.00532  0.005835 0.001423]
+  max abs qpos error [x, y, z, qw, qx, qy, qz]: [1.516346 0.753464 0.869838 0.796846 0.925406 0.937674 1.032502]
+  max abs qvel error [vx, vy, vz, wx, wy, wz]: [ 0.984633  0.437414  0.717355 23.53692  19.970733  0.402329]
+
+Interpretation:
+  The steady-state thrust law should match because omega_cmd = sqrt(f_cmd / kf).
+  Fast transients do not match exactly because the direct model filters thrust, while
+  the plugin filters rotor speed and then squares it to produce thrust.

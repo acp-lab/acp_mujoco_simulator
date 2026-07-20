@@ -41,6 +41,11 @@
       <site name="${prefix}_rateY" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
       <site name="${prefix}_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
 
+      <site name="${prefix}_rotor1_site" type="sphere" pos="0.1 0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor2_site" type="sphere" pos="0.1 -0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor3_site" type="sphere" pos="-0.1 -0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor4_site" type="sphere" pos="-0.1 0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+
       <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"/>
     </body>
   </xacro:macro>
@@ -52,44 +57,54 @@
 
 
   <xacro:macro name="quadrotor_actuators" params="prefix">
-    <general site="${prefix}_thrust" name="${prefix}_body_thrust"
-             gear="0 0 1 0 0 0"
-             dyntype="filterexact" dynprm="0.025"
-             gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="0 80.0"
-             actlimited="true" actrange="0 80.0"
-             forcelimited="true" forcerange="0 80.0"
-             nsample="8" delay="0.018" interp="zoh"/>
-    <general site="${prefix}_rateX" name="${prefix}_x_moment"
-             gear="0 0 0 1 0 0"
-             dyntype="filterexact" dynprm="0.025"
-             gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.4 0.4"
-             actlimited="true" actrange="-0.4 0.4"
-             forcelimited="true" forcerange="-0.4 0.4"
-             nsample="8" delay="0.018" interp="zoh"/>
-    <general site="${prefix}_rateY" name="${prefix}_y_moment"
-             gear="0 0 0 0 1 0"
-             dyntype="filterexact" dynprm="0.025"
-             gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.4 0.4"
-             actlimited="true" actrange="-0.4 0.4"
-             forcelimited="true" forcerange="-0.4 0.4"
-             nsample="8" delay="0.018" interp="zoh"/>
-    <general site="${prefix}_rateZ" name="${prefix}_z_moment"
-             gear="0 0 0 0 0 1"
-             dyntype="filterexact" dynprm="0.025"
-             gaintype="fixed" gainprm="1"
-             ctrllimited="true" ctrlrange="-0.4 0.4"
-             actlimited="true" actrange="-0.4 0.4"
-             forcelimited="true" forcerange="-0.4 0.4"
-             nsample="8" delay="0.018" interp="zoh"/>
+    <plugin site="${prefix}_rotor1_site" name="${prefix}_rotor1"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000.0"
+            gear="0 0 1 0 0 0.015"
+            nsample="8" delay="0.018" interp="zoh">
+      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin site="${prefix}_rotor2_site" name="${prefix}_rotor2"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000.0"
+            gear="0 0 1 0 0 -0.015"
+            nsample="8" delay="0.018" interp="zoh">
+      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin site="${prefix}_rotor3_site" name="${prefix}_rotor3"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000.0"
+            gear="0 0 1 0 0 0.015"
+            nsample="8" delay="0.018" interp="zoh">
+      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin site="${prefix}_rotor4_site" name="${prefix}_rotor4"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000.0"
+            gear="0 0 1 0 0 -0.015"
+            nsample="8" delay="0.018" interp="zoh">
+      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
     
     <plugin name="acro_ctrl_${prefix}" plugin="MujocoRosUtils::AcroMode" joint="${prefix}">
-      <config key="actuator_fz"  value="${prefix}_body_thrust"/>
-      <config key="actuator_tx"  value="${prefix}_x_moment"/>
-      <config key="actuator_ty"  value="${prefix}_y_moment"/>
-      <config key="actuator_tz"  value="${prefix}_z_moment"/>
+      <config key="actuator_r1"  value="${prefix}_rotor1"/>
+      <config key="actuator_r2"  value="${prefix}_rotor2"/>
+      <config key="actuator_r3"  value="${prefix}_rotor3"/>
+      <config key="actuator_r4"  value="${prefix}_rotor4"/>
+      <config key="rotor_actuator_model" value="speed"/>
+      <config key="rotor_kf" value="2.110740925780823e-06"/>
+      <config key="allocation_weight_fz" value="1.0"/>
+      <config key="allocation_weight_tx" value="20.0"/>
+      <config key="allocation_weight_ty" value="20.0"/>
+      <config key="allocation_weight_tz" value="5.0"/>
       <config key="control_hz"   value="400"/>
       <config key="body_name"    value="${prefix}"/>
     </plugin>
