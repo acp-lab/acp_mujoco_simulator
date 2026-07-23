@@ -63,7 +63,7 @@
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 0.015"
             nsample="8" delay="0.018" interp="zoh">
-      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
     <plugin site="${prefix}_rotor2_site" name="${prefix}_rotor2"
@@ -72,7 +72,7 @@
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 -0.015"
             nsample="8" delay="0.018" interp="zoh">
-      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
     <plugin site="${prefix}_rotor3_site" name="${prefix}_rotor3"
@@ -81,7 +81,7 @@
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 0.015"
             nsample="8" delay="0.018" interp="zoh">
-      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
     <plugin site="${prefix}_rotor4_site" name="${prefix}_rotor4"
@@ -90,7 +90,7 @@
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 -0.015"
             nsample="8" delay="0.018" interp="zoh">
-      <config key="kf" value="2.110740925780823e-06"/>
+      <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
     
@@ -100,7 +100,7 @@
       <config key="actuator_r3"  value="${prefix}_rotor3"/>
       <config key="actuator_r4"  value="${prefix}_rotor4"/>
       <config key="rotor_actuator_model" value="speed"/>
-      <config key="rotor_kf" value="2.110740925780823e-06"/>
+      <config key="rotor_kf" value="2.063751543951938e-06"/>
       <config key="allocation_weight_fz" value="1.0"/>
       <config key="allocation_weight_tx" value="20.0"/>
       <config key="allocation_weight_ty" value="20.0"/>

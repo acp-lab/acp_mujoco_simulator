@@ -1,0 +1,82 @@
+Omnidirectional hexrotor geometric pose tracking
+
+model xml: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/omnidirectional_hexrotor_geometric_tracking_results/omnidirectional_hexrotor_geometric_tracking.xml
+csv: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/omnidirectional_hexrotor_geometric_tracking_results/omnidirectional_hexrotor_geometric_tracking.csv
+actuator model: plugin
+plugin library: /home/fer/payload_transportation_ws/mujoco-3.10.0/bin/mujoco_plugin/libMujocoRosUtilsPlugin.so
+joint type: free
+gravity z: -9.81 m/s^2
+mass: 0.85 kg
+inertia diagonal: [0.01, 0.01, 0.02] kg m^2
+kf: 2.063751543951938e-06 N/(rad/s)^2
+omega max: 3000 rad/s
+motor force max: 18.5738 N
+motor speed tau: 0.025 s
+motor speed delay: 0.018 s
+allocator: osqp
+allocation regularization: 1e-09
+allocator status counts: {'osqp_solved': 15001}
+
+Controller:
+kp_position: [2, 2, 3]
+kd_position: [2.5, 2.5, 3]
+kr_attitude: [0.7, 0.7, 0.95]
+kw_attitude: [0.18, 0.18, 0.24]
+allocation weights [Fx, Fy, Fz, Mx, My, Mz]: [1, 1, 1, 1, 1, 1]
+
+allocation rank: 6
+allocation condition number: 20.7477
+allocation singular values: [2.0065, 1.01291, 1.01291, 0.142495, 0.0967099, 0.0967099]
+
+Allocation matrix A_force, rows [Fx, Fy, Fz, Mx, My, Mz], columns motor forces:
+[[ 0.496732  0.496732 -0.496732 -0.496732 -0.       -0.      ]
+ [ 0.286788  0.286788  0.286788  0.286788 -0.573576 -0.573576]
+ [ 0.819152  0.819152  0.819152  0.819152  0.819152  0.819152]
+ [ 0.007451  0.106054  0.106054  0.007451 -0.113505 -0.113505]
+ [-0.126763 -0.069834  0.069834  0.126763  0.056929 -0.056929]
+ [ 0.058173 -0.058173  0.058173 -0.058173  0.058173 -0.058173]]
+
+Direct omega^2 matrix A_omega2 = A_force @ diag(kf), rows [Fx, Fy, Fz, Mx, My, Mz]:
+[[ 1.025130946726e-06  1.025130946726e-06 -1.025130946726e-06
+  -1.025130946726e-06 -2.174456997097e-22 -2.174456997097e-22]
+ [ 5.918596280470e-07  5.918596280470e-07  5.918596280470e-07
+   5.918596280470e-07 -1.183719256094e-06 -1.183719256094e-06]
+ [ 1.690526296133e-06  1.690526296133e-06  1.690526296133e-06
+   1.690526296133e-06  1.690526296133e-06  1.690526296133e-06]
+ [ 1.537696420089e-08  2.188692307138e-07  2.188692307138e-07
+   1.537696420089e-08 -2.342461949147e-07 -2.342461949147e-07]
+ [-2.616063129605e-07 -1.441199981113e-07  1.441199981113e-07
+   2.616063129605e-07  1.174863148492e-07 -1.174863148492e-07]
+ [ 1.200554349295e-07 -1.200554349295e-07  1.200554349295e-07
+  -1.200554349295e-07  1.200554349295e-07 -1.200554349295e-07]]
+
+max desired speed norm [m/s]: 2.9878
+max actual speed norm [m/s]: 6.70072
+95th percentile actual speed norm [m/s]: 4.95906
+
+rms position error [m]: 3.39013
+max position error [m]: 9.10679
+rms attitude error norm: 0.524105
+max attitude error norm: 1
+rms attitude error norm after 2 s: 0.542485
+max attitude error norm after 2 s: 1
+rms omega error [rad/s]: 8.86602
+max omega error [rad/s]: 22.4
+rms omega error after 2 s [rad/s]: 9.17717
+max omega error after 2 s [rad/s]: 22.4
+
+motor force command min: [0, 0, 0, 0, 0, 0]
+motor force command max: [9.06033, 16.534, 14.3502, 16.7903, 11.4588, 15.657]
+omega command min: [0, 0, 0, 0, 0, 0]
+omega command max: [2095.29, 2830.48, 2636.94, 2852.34, 2356.35, 2754.39]
+actual omega min: [1.65939e-09, 6.39257e-08, 4.89891e-13, 3.55419e-13, 7.29577e-11, 3.74258e-15]
+actual omega max: [2021.25, 2650.84, 2526.94, 2690.75, 2190.08, 2668.9]
+applied motor force min: [5.68272e-24, 8.43352e-21, 4.95286e-31, 2.60699e-31, 1.0985e-26, 2.89067e-35]
+applied motor force max: [8.43138, 14.5019, 13.1779, 14.9419, 9.89867, 14.7002]
+
+max abs allocation residual [Fx, Fy, Fz, Mx, My, Mz]: [18.612, 19.3576, 20.5605, 4.98697, 4.68664, 4.45751]
+max abs moment allocation residual [Mx, My, Mz]: [4.98697, 4.68664, 4.45751]
+rms command wrench error [Fx, Fy, Fz, Mx, My, Mz]: [6.04753, 5.05134, 7.4209, 1.21299, 1.04486, 0.929483]
+max abs command wrench error [Fx, Fy, Fz, Mx, My, Mz]: [18.612, 19.3576, 20.5605, 4.98697, 4.68664, 4.45751]
+rms applied wrench error [Fx, Fy, Fz, Mx, My, Mz]: [6.18203, 5.18927, 7.43625, 1.25843, 1.08371, 0.938909]
+max abs applied wrench error [Fx, Fy, Fz, Mx, My, Mz]: [20.1919, 20.7398, 20.5605, 5.50167, 4.89992, 4.46037]

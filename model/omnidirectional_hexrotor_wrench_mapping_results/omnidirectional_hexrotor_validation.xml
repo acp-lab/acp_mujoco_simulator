@@ -1,0 +1,206 @@
+
+<mujoco model="omnidirectional_hexrotor_wrench_validation">
+  <compiler angle="radian"/>
+  <option timestep="0.002" gravity="0 0 0" integrator="RK4">
+    <flag energy="enable" contact="enable"/>
+  </option>
+  
+  <extension>
+    <plugin plugin="MujocoRosUtils::RotorMotor"/>
+  </extension>
+  <asset>
+    <texture name="texchecker" type="2d" builtin="checker" width="512" height="512" rgb1="0.8 0.8 0.8" rgb2="0.2 0.2 0.2"/>
+    <material name="matchecker" texture="texchecker" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+  <worldbody>
+    <light pos="0 0 2.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="10 10 0.1" material="matchecker" condim="3"/>
+    <camera name="overview" pos="0 -1.35 2.25" xyaxes="1 0 0 0 0.86 0.51"/>
+    <body name="omni_1" pos="0 0 2">
+      <joint name="omni_1" type="free" damping="0.001"/>
+      <inertial pos="0 0 0" mass="0.85" diaginertia="0.01 0.01 0.02"/>
+      <geom name="omni_1_core" type="box" size="0.055 0.055 0.022" rgba="1 1 0 1"/>
+      
+      <geom name="omni_1_arm1"
+            type="capsule"
+            fromto="0 0 0 0.16 0 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor1_marker"
+            type="cylinder"
+            pos="0.16 0 0.0"
+            size="0.035 0.003"
+            zaxis="0.4967317648921541 0.286788218175523 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      <geom name="omni_1_arm2"
+            type="capsule"
+            fromto="0 0 0 0.08000000000000002 0.1385640646055102 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor2_marker"
+            type="cylinder"
+            pos="0.08000000000000002 0.1385640646055102 0.0"
+            size="0.035 0.003"
+            zaxis="0.4967317648921541 0.286788218175523 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      <geom name="omni_1_arm3"
+            type="capsule"
+            fromto="0 0 0 -0.07999999999999996 0.1385640646055102 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor3_marker"
+            type="cylinder"
+            pos="-0.07999999999999996 0.1385640646055102 0.0"
+            size="0.035 0.003"
+            zaxis="-0.496731764892154 0.2867882181755232 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      <geom name="omni_1_arm4"
+            type="capsule"
+            fromto="0 0 0 -0.16 1.959434878635765e-17 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor4_marker"
+            type="cylinder"
+            pos="-0.16 1.959434878635765e-17 0.0"
+            size="0.035 0.003"
+            zaxis="-0.4967317648921541 0.286788218175523 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      <geom name="omni_1_arm5"
+            type="capsule"
+            fromto="0 0 0 -0.08000000000000007 -0.1385640646055102 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor5_marker"
+            type="cylinder"
+            pos="-0.08000000000000007 -0.1385640646055102 0.0"
+            size="0.035 0.003"
+            zaxis="-1.053642820265481e-16 -0.5735764363510462 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      <geom name="omni_1_arm6"
+            type="capsule"
+            fromto="0 0 0 0.08000000000000002 -0.1385640646055102 0"
+            size="0.009"
+            rgba="1 0.5 0 1"/>
+      <geom name="omni_1_rotor6_marker"
+            type="cylinder"
+            pos="0.08000000000000002 -0.1385640646055102 0.0"
+            size="0.035 0.003"
+            zaxis="-1.053642820265481e-16 -0.5735764363510462 0.8191520442889919"
+            rgba="1 0 0 0.8"/>
+      
+      <site name="omni_1_rotor1_site"
+            type="sphere"
+            pos="0.16 0 0"
+            zaxis="0.4967317648921541 0.286788218175523 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_rotor2_site"
+            type="sphere"
+            pos="0.08000000000000002 0.1385640646055102 0"
+            zaxis="0.4967317648921541 0.286788218175523 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_rotor3_site"
+            type="sphere"
+            pos="-0.07999999999999996 0.1385640646055102 0"
+            zaxis="-0.496731764892154 0.2867882181755232 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_rotor4_site"
+            type="sphere"
+            pos="-0.16 1.959434878635765e-17 0"
+            zaxis="-0.4967317648921541 0.286788218175523 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_rotor5_site"
+            type="sphere"
+            pos="-0.08000000000000007 -0.1385640646055102 0"
+            zaxis="-1.053642820265481e-16 -0.5735764363510462 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_rotor6_site"
+            type="sphere"
+            pos="0.08000000000000002 -0.1385640646055102 0"
+            zaxis="-1.053642820265481e-16 -0.5735764363510462 0.8191520442889919"
+            size="0.006"
+            rgba="0 1 0 1"/>
+      <site name="omni_1_imu" pos="0 0 0" size="0.006" rgba="0 1 1 1"/>
+      <camera name="onboard" pos="0.06 0 -0.025" euler="0 0 -1.57079632679"/>
+    </body>
+  </worldbody>
+  <actuator>
+    
+    <plugin name="omni_1_rotor1"
+            site="omni_1_rotor1_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin name="omni_1_rotor2"
+            site="omni_1_rotor2_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 -0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin name="omni_1_rotor3"
+            site="omni_1_rotor3_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin name="omni_1_rotor4"
+            site="omni_1_rotor4_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 -0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin name="omni_1_rotor5"
+            site="omni_1_rotor5_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+    <plugin name="omni_1_rotor6"
+            site="omni_1_rotor6_site"
+            plugin="MujocoRosUtils::RotorMotor"
+            actdim="1"
+            ctrlrange="0 3000"
+            gear="0 0 1 0 0 -0.015"
+            nsample="8"
+            delay="0.018"
+            interp="zoh">
+      <config key="kf" value="2.063751543951938e-06"/>
+      <config key="tau" value="0.025"/>
+    </plugin>
+  </actuator>
+</mujoco>

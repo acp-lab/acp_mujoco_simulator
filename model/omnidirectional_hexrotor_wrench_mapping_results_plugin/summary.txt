@@ -1,0 +1,53 @@
+Omnidirectional hexrotor wrench mapping validation
+
+model xml: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/omnidirectional_hexrotor_wrench_mapping_results_plugin/omnidirectional_hexrotor_validation.xml
+csv: /home/fer/payload_transportation_ws/src/acp_mujoco_simulator/model/omnidirectional_hexrotor_wrench_mapping_results_plugin/omnidirectional_hexrotor_wrench_mapping.csv
+actuator model: plugin
+plugin library: /home/fer/payload_transportation_ws/mujoco-3.10.0/bin/mujoco_plugin/libMujocoRosUtilsPlugin.so
+kf: 2.063751543951938e-06 N/(rad/s)^2
+omega max: 3000 rad/s
+motor force max: 18.5738 N
+motor speed tau: 0.025 s
+motor speed delay: 0.018 s
+
+allocation rank: 6
+allocation condition number: 20.7477
+allocation singular values: [2.0065, 1.01291, 1.01291, 0.142495, 0.0967099, 0.0967099]
+nominal wrench [Fx, Fy, Fz, Mx, My, Mz]: [-1.99413e-16, 0, 9.82982, 5.55112e-17, 2.77556e-17, 0]
+
+Allocation matrix A_force, rows [Fx, Fy, Fz, Mx, My, Mz], columns motor forces:
+[[ 0.496732  0.496732 -0.496732 -0.496732 -0.       -0.      ]
+ [ 0.286788  0.286788  0.286788  0.286788 -0.573576 -0.573576]
+ [ 0.819152  0.819152  0.819152  0.819152  0.819152  0.819152]
+ [ 0.007451  0.106054  0.106054  0.007451 -0.113505 -0.113505]
+ [-0.126763 -0.069834  0.069834  0.126763  0.056929 -0.056929]
+ [ 0.058173 -0.058173  0.058173 -0.058173  0.058173 -0.058173]]
+
+Direct omega^2 matrix A_omega2 = A_force @ diag(kf), rows [Fx, Fy, Fz, Mx, My, Mz]:
+[[ 1.025130946726e-06  1.025130946726e-06 -1.025130946726e-06
+  -1.025130946726e-06 -2.174456997097e-22 -2.174456997097e-22]
+ [ 5.918596280470e-07  5.918596280470e-07  5.918596280470e-07
+   5.918596280470e-07 -1.183719256094e-06 -1.183719256094e-06]
+ [ 1.690526296133e-06  1.690526296133e-06  1.690526296133e-06
+   1.690526296133e-06  1.690526296133e-06  1.690526296133e-06]
+ [ 1.537696420089e-08  2.188692307138e-07  2.188692307138e-07
+   1.537696420089e-08 -2.342461949147e-07 -2.342461949147e-07]
+ [-2.616063129605e-07 -1.441199981113e-07  1.441199981113e-07
+   2.616063129605e-07  1.174863148492e-07 -1.174863148492e-07]
+ [ 1.200554349295e-07 -1.200554349295e-07  1.200554349295e-07
+  -1.200554349295e-07  1.200554349295e-07 -1.200554349295e-07]]
+
+motor force command min: [1.61037, 1.42569, 1.43024, 1.46145, 1.52439, 1.59605]
+motor force command max: [2.49852, 2.46946, 2.40064, 2.66995, 2.33979, 2.2169]
+omega command min: [883.351, 831.159, 832.485, 841.518, 859.448, 879.418]
+omega command max: [1100.31, 1093.89, 1078.54, 1137.42, 1064.78, 1036.44]
+actual omega min: [883.623, 831.422, 832.835, 841.93, 859.657, 879.638]
+actual omega max: [1100.07, 1093.72, 1078.34, 1137.1, 1064.67, 1036.34]
+applied motor force min: [1.61136, 1.42659, 1.43145, 1.46288, 1.52513, 1.59685]
+applied motor force max: [2.49744, 2.46872, 2.39975, 2.66841, 2.33929, 2.21647]
+
+max abs command allocation residual [Fx, Fy, Fz, Mx, My, Mz]: [4.05058e-15, 3.66374e-15, 8.88178e-15, 3.747e-16, 9.02056e-16, 6.2797e-16]
+rms command wrench error [Fx, Fy, Fz, Mx, My, Mz]: [1.3679e-15, 1.136e-15, 2.87778e-15, 1.055e-16, 3.24135e-16, 2.58518e-16]
+max abs command wrench error [Fx, Fy, Fz, Mx, My, Mz]: [4.05058e-15, 3.66374e-15, 8.88178e-15, 3.747e-16, 9.02056e-16, 6.2797e-16]
+rms applied wrench error [Fx, Fy, Fz, Mx, My, Mz]: [0.0108215, 0.0159386, 0.0107037, 0.00102232, 0.00116833, 0.000930685]
+max abs applied wrench error [Fx, Fy, Fz, Mx, My, Mz]: [0.0152847, 0.023097, 0.0153924, 0.00151627, 0.00168107, 0.00129832]
