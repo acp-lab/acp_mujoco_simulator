@@ -131,18 +131,25 @@
   <xacro:macro name="quadrotor_lidar_plugin" params="prefix">
     <plugin name="${prefix}_lidar_pub" plugin="MujocoRosUtils::LidarPublisher">
       <config key="site_name" value="${prefix}_lidar"/>
-      <config key="frame_id" value="${prefix}_lidar"/>
+      <config key="frame_id" value="livox_frame"/>
       <config key="topic_prefix" value="${prefix}"/>
-      <config key="topic_name" value="lidar/points"/>
+      <config key="topic_name" value="livox/lidar"/>
+      <config key="message_type" value="livox_custom"/>
+      <config key="livox_lidar_id" value="1"/>
       <config key="publish_rate" value="10"/>
-      <config key="cutoff_dist" value="30"/>
-      <config key="min_range" value="0.05"/>
-      <config key="scan_model" value="vlp16"/>
-      <config key="horizontal_samples" value="1024"/>
+      <config key="cutoff_dist" value="40"/>
+      <config key="min_range" value="0.1"/>
+      <config key="scan_model" value="mid360"/>
+      <config key="samples_per_frame" value="24000"/>
+      <config key="pattern_file" value="$(arg meshdir)/livox_scan_mode/mid360.npy"/>
+      <config key="horizontal_samples" value="500"/>
+      <config key="vertical_samples" value="40"/>
+      <config key="horizontal_fov_deg" value="360"/>
+      <config key="vertical_fov_deg" value="59"/>
       <config key="bodyexclude" value="${prefix}"/>
       <config key="geomgroup" value="1 0 0 0 0 0"/>
       <config key="qos_reliability" value="reliable"/>
-      <config key="publish_tf" value="true"/>
+      <config key="publish_tf" value="false"/>
       <config key="tf_parent_frame" value="world"/>
     </plugin>
   </xacro:macro>

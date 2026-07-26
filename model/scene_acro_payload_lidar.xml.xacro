@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Single-Drone LiDAR Scene">
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Single-Drone Payload LiDAR Scene">
   
   <xacro:arg name="quad_name" default="quadrotor"/>
   <xacro:arg name="init_x" default="0.0"/>
@@ -76,6 +76,7 @@
                           primitive_alpha="$(arg primitive_alpha)"
                           include_lidar="true" />
 
+
     <body name="payload" pos="-0.7 0.0 0.02">
       <joint type="free" damping="0.01"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.2"/>
@@ -104,8 +105,8 @@
 
   <tendon>
     <spatial name="rope0" limited="true" range="0 0.71" width=".0005">
+      <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
-      <site site="payload_connection_site_2"/>
     </spatial>
   </tendon>
 
