@@ -137,10 +137,10 @@
       <config key="message_type" value="livox_custom"/>
       <config key="livox_lidar_id" value="1"/>
       <config key="publish_rate" value="10"/>
-      <config key="cutoff_dist" value="40"/>
+      <config key="cutoff_dist" value="15"/>
       <config key="min_range" value="0.1"/>
       <config key="scan_model" value="mid360"/>
-      <config key="samples_per_frame" value="24000"/>
+      <config key="samples_per_frame" value="20000"/>
       <config key="pattern_file" value="$(arg meshdir)/livox_scan_mode/mid360.npy"/>
       <config key="horizontal_samples" value="500"/>
       <config key="vertical_samples" value="40"/>
