@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Multi-Drone LiDAR Scene">
+  <xacro:arg name="meshdir" default="."/>
+  <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
+  <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
+  <xacro:arg name="primitive_alpha" default="0.8"/>
+
+  <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
+
+  <compiler angle="radian" meshdir="$(arg meshdir)"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+
+  <extension>
+    <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
+    <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
+    <plugin plugin="MujocoRosUtils::SensorPublisher"/>
+    <plugin plugin="MujocoRosUtils::ImuPublisher"/>
+    <plugin plugin="MujocoRosUtils::LidarPublisher"/>
+    <plugin plugin="MujocoRosUtils::TensionPublisher"/>
+    <plugin plugin="MujocoRosUtils::RotorMotor"/>
+    <plugin plugin="MujocoRosUtils::AcroMode"/>
+    <plugin plugin="MujocoRosUtils::LowLevelMode"/>
+    <plugin plugin="MujocoRosUtils::ClockPublisher"/>
+  </extension>
+
+  <asset>
+    <material name="mat_red"   rgba="0.8 0.1 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <material name="mat_green" rgba="0.1 0.8 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <material name="mat_blue"  rgba="0.1 0.1 0.8 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <material name="mat_yellow" rgba="0.9 0.8 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <material name="mat_cyan"   rgba="0.1 0.7 0.8 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <material name="mat_gray"   rgba="0.45 0.45 0.45 1" reflectance="0.01" shininess="0.01" specular="0.0" />
+    <xacro:quadrotor_visual_assets />
+
+    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+
+  <worldbody>
+    <plugin plugin="MujocoRosUtils::ClockPublisher">
+      <config key="topic_name" value="/clock"/>
+      <config key="publish_rate" value="100"/>
+      <config key="use_sim_time" value="false"/>
+    </plugin>
+
+    <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <geom name="ceiling" type="box" pos="2.5 0 3.0" size="5.55 2.05 0.04" rgba="0.7 0.7 0.75 0.35"/>
+
+    <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
+    <geom name="box_green" type="box" pos="4 -1 0.5" size="0.2 0.2 0.5" material="mat_green" />
+    <geom name="box_blue" type="box" pos="6 1 0.5" size="0.2 0.2 0.5" material="mat_blue" />
+    <geom name="pillar_cyan" type="cylinder" pos="1.2 -1.25 0.75" size="0.12 0.75" material="mat_cyan" />
+    <geom name="pillar_yellow" type="cylinder" pos="5.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
+    <geom name="tall_slab_left" type="box" pos="0.6 1.35 0.8" size="0.08 0.35 0.8" material="mat_gray" />
+    <geom name="low_crate_back" type="box" pos="6.7 -0.8 0.25" size="0.28 0.32 0.25" material="mat_cyan" />
+    <geom name="overhead_beam" type="box" pos="3.6 1.1 1.8" size="0.9 0.08 0.08" material="mat_gray" />
+    <geom name="offset_panel" type="box" pos="7.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
+
+    <!-- AUTO_QUADROTORS_MUJOCO_BODIES -->
+    <!-- AUTO_PAYLOAD_MUJOCO_BODY -->
+
+    <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+
+    <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
+    <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>
+    <geom name="origin_z" type="cylinder" fromto="0 0 0.01 0 0 0.51" size="0.01" rgba="0 0 1 0.1" contype="0" conaffinity="0" group="1"/>
+  </worldbody>
+
+  <actuator>
+    <!-- AUTO_QUADROTORS_MUJOCO_ACTUATORS -->
+  </actuator>
+
+  <tendon>
+    <!-- AUTO_QUADROTORS_MUJOCO_TENDONS -->
+  </tendon>
+
+  <sensor>
+    <!-- AUTO_QUADROTORS_MUJOCO_SENSORS -->
+  </sensor>
+</mujoco>
