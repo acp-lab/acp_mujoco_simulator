@@ -116,7 +116,7 @@
     </plugin>
   </xacro:macro>
 
-  <xacro:macro name="quadrotor_sensor_plugins" params="prefix odom_hz:=240 imu_hz:=250">
+  <xacro:macro name="quadrotor_sensor_plugins" params="prefix odom_hz:=240 imu_hz:=350">
     <plugin name="${prefix}_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="${prefix}">
       <config key="publish_rate" value="${odom_hz}"/>
     </plugin>

@@ -16,7 +16,7 @@
 
 
   <compiler angle="radian"/>
-  <option timestep="0.003" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+  <option timestep="0.0025" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
