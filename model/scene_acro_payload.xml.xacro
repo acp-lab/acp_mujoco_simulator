@@ -57,7 +57,7 @@
     <plugin plugin="MujocoRosUtils::ClockPublisher">
       <config key="topic_name" value="/clock"/>
       <config key="publish_rate" value="$(arg clock_hz)"/>
-      <config key="use_sim_time" value="false"/>
+      <config key="use_sim_time" value="true"/>
     </plugin>
 
     <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
