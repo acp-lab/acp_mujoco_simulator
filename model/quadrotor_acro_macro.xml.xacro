@@ -61,7 +61,7 @@
   </xacro:macro>
 
 
-  <xacro:macro name="quadrotor_actuators" params="prefix">
+  <xacro:macro name="quadrotor_actuators" params="prefix control_hz:=240">
     <plugin site="${prefix}_rotor1_site" name="${prefix}_rotor1"
             plugin="MujocoRosUtils::RotorMotor"
             actdim="1"
@@ -111,24 +111,24 @@
       <config key="allocation_weight_tx" value="20.0"/>
       <config key="allocation_weight_ty" value="20.0"/>
       <config key="allocation_weight_tz" value="5.0"/>
-      <config key="control_hz"   value="400"/>
+      <config key="control_hz"   value="${control_hz}"/>
       <config key="body_name"    value="${prefix}"/>
     </plugin>
   </xacro:macro>
 
-  <xacro:macro name="quadrotor_sensor_plugins" params="prefix">
+  <xacro:macro name="quadrotor_sensor_plugins" params="prefix odom_hz:=240 imu_hz:=250">
     <plugin name="${prefix}_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="${prefix}">
-      <config key="publish_rate" value="240"/>
+      <config key="publish_rate" value="${odom_hz}"/>
     </plugin>
     <plugin name="${prefix}_imu_pub" plugin="MujocoRosUtils::ImuPublisher">
       <config key="body_name"    value="${prefix}"/>
       <config key="accel_sensor" value="${prefix}_accel"/>
       <config key="gyro_sensor"  value="${prefix}_gyro"/>
-      <config key="publish_rate" value="400"/>
+      <config key="publish_rate" value="${imu_hz}"/>
     </plugin>
   </xacro:macro>
 
-  <xacro:macro name="quadrotor_lidar_plugin" params="prefix">
+  <xacro:macro name="quadrotor_lidar_plugin" params="prefix lidar_hz:=10">
     <plugin name="${prefix}_lidar_pub" plugin="MujocoRosUtils::LidarPublisher">
       <config key="site_name" value="${prefix}_lidar"/>
       <config key="frame_id" value="livox_frame"/>
@@ -136,7 +136,7 @@
       <config key="topic_name" value="livox/lidar"/>
       <config key="message_type" value="livox_custom"/>
       <config key="livox_lidar_id" value="1"/>
-      <config key="publish_rate" value="10"/>
+      <config key="publish_rate" value="${lidar_hz}"/>
       <config key="cutoff_dist" value="15"/>
       <config key="min_range" value="0.1"/>
       <config key="scan_model" value="mid360"/>

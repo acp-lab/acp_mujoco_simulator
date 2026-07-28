@@ -4,12 +4,14 @@
   <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
   <xacro:arg name="primitive_alpha" default="0.8"/>
+  <xacro:arg name="simulation_timestep" default="0.003"/>
+  <xacro:arg name="clock_hz" default="100"/>
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
 
   <compiler angle="radian" meshdir="$(arg meshdir)"/>
 
-  <option timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+  <option timestep="$(arg simulation_timestep)" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -41,7 +43,7 @@
   <worldbody>
     <plugin plugin="MujocoRosUtils::ClockPublisher">
       <config key="topic_name" value="/clock"/>
-      <config key="publish_rate" value="100"/>
+      <config key="publish_rate" value="$(arg clock_hz)"/>
       <config key="use_sim_time" value="false"/>
     </plugin>
 

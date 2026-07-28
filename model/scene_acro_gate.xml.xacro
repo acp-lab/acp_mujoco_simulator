@@ -12,6 +12,14 @@
   <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
   <xacro:arg name="primitive_alpha" default="0.9"/>
+  <xacro:arg name="simulation_timestep" default="0.003"/>
+  <xacro:arg name="imu_hz" default="250"/>
+  <xacro:arg name="odom_hz" default="240"/>
+  <xacro:arg name="control_hz" default="240"/>
+  <xacro:arg name="payload_odom_hz" default="100"/>
+  <xacro:arg name="tension_hz" default="100"/>
+  <xacro:arg name="clock_hz" default="100"/>
+  <xacro:arg name="lidar_hz" default="10"/>
   <xacro:arg name="gates_collide" default="0"/>
   <xacro:arg name="gate_radius" default="0.42"/>
   <xacro:arg name="gate_thickness" default="0.025"/>
@@ -22,7 +30,7 @@
 
   <compiler angle="radian" meshdir="$(arg meshdir)"/>
 
-  <option timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+  <option timestep="$(arg simulation_timestep)" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -72,7 +80,7 @@
   <worldbody>
     <plugin plugin="MujocoRosUtils::ClockPublisher">
       <config key="topic_name" value="/clock"/>
-      <config key="publish_rate" value="100"/>
+      <config key="publish_rate" value="$(arg clock_hz)"/>
       <config key="use_sim_time" value="false"/>
     </plugin>
 
@@ -91,13 +99,17 @@
                           primitive_alpha="$(arg primitive_alpha)" />
 
     <body name="payload" pos="-0.0 0.0 0.7">
-      <joint type="free" damping="0.01"/>
+      <joint name="payload_x" type="slide" axis="1 0 0" damping="0.1"/>
+      <joint name="payload_y" type="slide" axis="0 1 0" damping="0.1"/>
+      <joint name="payload_z" type="slide" axis="0 0 1" damping="0.1"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.2"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
     </body>
 
     <body name="payload_2" pos="-0.7 0.7 0.02">
-      <joint type="free" damping="0.01"/>
+      <joint name="payload_2_x" type="slide" axis="1 0 0" damping="0.1"/>
+      <joint name="payload_2_y" type="slide" axis="0 1 0" damping="0.1"/>
+      <joint name="payload_2_z" type="slide" axis="0 0 1" damping="0.1"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.2"/>
       <site name="payload_connection_site_2" pos="0.0 0.0 0.0"/>
     </body>
@@ -118,7 +130,7 @@
   </worldbody>
 
   <actuator>
-    <xacro:quadrotor_actuators prefix="$(arg quad_name)" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name)" control_hz="$(arg control_hz)" />
   </actuator>
 
   <tendon>
@@ -130,9 +142,9 @@
 
   <sensor>
     <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
-    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" />
+    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" odom_hz="$(arg odom_hz)" imu_hz="$(arg imu_hz)" />
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
-      <config key="publish_rate" value="240"/>
+      <config key="publish_rate" value="$(arg payload_odom_hz)"/>
       <config key="topic_prefix" value="$(arg quad_name)"/>
     </plugin>
     <tendonlimitfrc tendon="rope0"/>
@@ -140,7 +152,7 @@
       <config key="tendon_name" value="rope0"/>
       <config key="topic_prefix" value="$(arg quad_name)"/>
       <config key="frame_id" value="payload_connection_site"/>
-      <config key="publish_rate" value="240"/>
+      <config key="publish_rate" value="$(arg tension_hz)"/>
     </plugin>
   </sensor>
 </mujoco>

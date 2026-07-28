@@ -54,7 +54,9 @@
 
 
     <body name="payload" pos="0.8 0 0.02">
-      <joint type="free" damping="0.01"/>
+      <joint name="payload_x" type="slide" axis="1 0 0" damping="0.1"/>
+      <joint name="payload_y" type="slide" axis="0 1 0" damping="0.1"/>
+      <joint name="payload_z" type="slide" axis="0 0 1" damping="0.1"/>
       <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1128"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
     </body>
