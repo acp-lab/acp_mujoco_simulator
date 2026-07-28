@@ -5,7 +5,7 @@
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
   <xacro:arg name="primitive_alpha" default="0.8"/>
   <xacro:arg name="simulation_timestep" default="0.0025"/>
-  <xacro:arg name="clock_hz" default="100"/>
+  <xacro:arg name="clock_hz" default="400"/>
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
 
