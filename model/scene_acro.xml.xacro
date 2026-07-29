@@ -107,7 +107,7 @@
   </actuator>
 
   <tendon>
-    <spatial name="rope0" limited="true" range="0 0.71" width=".0005">
+    <spatial name="rope0" limited="true" range="0 0.95" width=".0005">
       <site site="payload_connection_site"/>
       <site site="payload_connection_site_2"/>
     </spatial>

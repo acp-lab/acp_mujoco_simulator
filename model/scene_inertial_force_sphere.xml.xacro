@@ -16,7 +16,7 @@
   <xacro:arg name="payload_radius" default="0.03"/>
   <xacro:arg name="payload_mass" default="0.2"/>
   <xacro:arg name="payload_damping" default="0.2"/>
-  <xacro:arg name="cable_length" default="0.71"/>
+  <xacro:arg name="cable_length" default="1.0"/>
   <xacro:arg name="publish_rate" default="240"/>
   <xacro:arg name="use_sim_time" default="true"/>
 

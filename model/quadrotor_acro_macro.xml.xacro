@@ -23,22 +23,22 @@
         <site name="${prefix}_lidar" type="sphere" pos="0 0 0.03" size="0.01" rgba="0 0.8 1 ${primitive_alpha}"/>
       </xacro:if>
       
-      <geom name="${prefix}_a00" type="box" pos=".071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0 0 0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
+      <geom name="${prefix}_a00" type="box" pos=".09034 0.09034 0.0" size="0.06364 0.01 0.0025" quat=".924 0 0 0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a10" type="box" pos=".071 -0.071 0.0" size="0.05 0.01 0.0025" quat=".383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
+      <geom name="${prefix}_a10" type="box" pos=".09034 -0.09034 0.0" size="0.06364 0.01 0.0025" quat=".383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a20" type="box" pos="-0.071 -0.071 0.0" size="0.05 0.01 0.0025" quat="-.383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
+      <geom name="${prefix}_a20" type="box" pos="-0.09034 -0.09034 0.0" size="0.06364 0.01 0.0025" quat="-.383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a30" type="box" pos="-.071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0 0 -0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
+      <geom name="${prefix}_a30" type="box" pos="-.09034 0.09034 0.0" size="0.06364 0.01 0.0025" quat=".924 0 0 -0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
 
-      <geom name="${prefix}_thruster00" type="cylinder" pos="-0.1 -0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
+      <geom name="${prefix}_thruster00" type="cylinder" pos="-0.12728 -0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster10" type="cylinder" pos="0.1 -0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
+      <geom name="${prefix}_thruster10" type="cylinder" pos="0.12728 -0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster20" type="cylinder" pos="-0.1 0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
+      <geom name="${prefix}_thruster20" type="cylinder" pos="-0.12728 0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster30" type="cylinder" pos="0.1 0.1 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
+      <geom name="${prefix}_thruster30" type="cylinder" pos="0.12728 0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
             solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
 
       <site name="${prefix}_thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
@@ -46,10 +46,10 @@
       <site name="${prefix}_rateY" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
       <site name="${prefix}_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
 
-      <site name="${prefix}_rotor1_site" type="sphere" pos="-0.1 -0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor2_site" type="sphere" pos="0.1 -0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor3_site" type="sphere" pos="-0.1 0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor4_site" type="sphere" pos="0.1 0.1 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor1_site" type="sphere" pos="-0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor2_site" type="sphere" pos="0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor3_site" type="sphere" pos="-0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor4_site" type="sphere" pos="0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
 
       <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"/>
     </body>

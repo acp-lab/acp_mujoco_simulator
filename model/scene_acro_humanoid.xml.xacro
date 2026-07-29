@@ -87,7 +87,7 @@
     </plugin>
   </sensor>
   <tendon>
-    <spatial name="rope0" limited="true" range="0 0.8" width=".0005">
+    <spatial name="rope0" limited="true" range="0 0.95" width=".0005">
       <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>

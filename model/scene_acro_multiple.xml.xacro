@@ -98,12 +98,12 @@
 
   </sensor>
   <tendon>
-    <spatial name="rope1" limited="true" range="0 0.8" width=".0005">
+    <spatial name="rope1" limited="true" range="0 0.95" width=".0005">
       <site site="$(arg quad_name_1)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
 
-    <spatial name="rope2" limited="true" range="0 0.8" width=".0005">
+    <spatial name="rope2" limited="true" range="0 0.95" width=".0005">
       <site site="$(arg quad_name_2)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
