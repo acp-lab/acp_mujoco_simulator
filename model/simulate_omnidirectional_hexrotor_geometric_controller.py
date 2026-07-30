@@ -68,7 +68,11 @@ class Reference:
 
 
 def _fmt(values: np.ndarray) -> str:
-    return "[" + ", ".join(f"{value:.6g}" for value in np.asarray(values, dtype=float)) + "]"
+    return (
+        "["
+        + ", ".join(f"{value:.6g}" for value in np.asarray(values, dtype=float))
+        + "]"
+    )
 
 
 def hat(vector: np.ndarray) -> np.ndarray:
@@ -117,7 +121,9 @@ def rpy_to_matrix(roll: float, pitch: float, yaw: float) -> np.ndarray:
 
 
 def matrix_to_rpy(rotation: np.ndarray) -> np.ndarray:
-    pitch = np.arctan2(-rotation[2, 0], np.sqrt(rotation[0, 0] ** 2 + rotation[1, 0] ** 2))
+    pitch = np.arctan2(
+        -rotation[2, 0], np.sqrt(rotation[0, 0] ** 2 + rotation[1, 0] ** 2)
+    )
     roll = np.arctan2(rotation[2, 1], rotation[2, 2])
     yaw = np.arctan2(rotation[1, 0], rotation[0, 0])
     return np.array([roll, pitch, yaw], dtype=float)
@@ -189,7 +195,9 @@ def matrix_to_quat(rotation: np.ndarray) -> np.ndarray:
     return quat / np.linalg.norm(quat)
 
 
-def desired_position_terms(time: float, args: argparse.Namespace) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def desired_position_terms(
+    time: float, args: argparse.Namespace
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     center = np.asarray(args.reference_position_center, dtype=float)
     amplitude = np.asarray(args.reference_position_amplitude, dtype=float)
     frequency = np.asarray(args.reference_position_frequency, dtype=float)
@@ -202,7 +210,9 @@ def desired_position_terms(time: float, args: argparse.Namespace) -> tuple[np.nd
     return position, velocity, acceleration
 
 
-def desired_orientation_matrix(time: float, args: argparse.Namespace) -> tuple[np.ndarray, np.ndarray]:
+def desired_orientation_matrix(
+    time: float, args: argparse.Namespace
+) -> tuple[np.ndarray, np.ndarray]:
     amplitude = np.asarray(args.reference_attitude_amplitude, dtype=float)
     frequency = np.asarray(args.reference_attitude_frequency, dtype=float)
     phase = np.asarray(args.reference_attitude_phase, dtype=float)
@@ -224,8 +234,12 @@ def reference_at(time: float, args: argparse.Namespace) -> Reference:
     rotation, rpy = desired_orientation_matrix(time, args)
     omega_body = desired_omega_body(time, args)
     step = args.orientation_diff_step
-    omega_dot_body = (desired_omega_body(time + step, args) - desired_omega_body(time - step, args)) / (2.0 * step)
-    return Reference(position, velocity, acceleration, rotation, omega_body, omega_dot_body, rpy)
+    omega_dot_body = (
+        desired_omega_body(time + step, args) - desired_omega_body(time - step, args)
+    ) / (2.0 * step)
+    return Reference(
+        position, velocity, acceleration, rotation, omega_body, omega_dot_body, rpy
+    )
 
 
 def geometric_pose_controller(
@@ -245,13 +259,21 @@ def geometric_pose_controller(
     position_error = position - reference.position
     velocity_error = velocity_world - reference.velocity
     gravity_world = np.array([0.0, 0.0, args.gravity_z], dtype=float)
-    desired_acceleration = reference.acceleration - kp_position * position_error - kd_position * velocity_error
+    desired_acceleration = (
+        reference.acceleration
+        - kp_position * position_error
+        - kd_position * velocity_error
+    )
     desired_force_world = args.mass * (desired_acceleration - gravity_world)
     desired_force_body = rotation.T @ desired_force_world
 
-    attitude_error_matrix = 0.5 * (reference.rotation.T @ rotation - rotation.T @ reference.rotation)
+    attitude_error_matrix = 0.5 * (
+        reference.rotation.T @ rotation - rotation.T @ reference.rotation
+    )
     attitude_error = vee(attitude_error_matrix)
-    desired_omega_in_current_body = rotation.T @ reference.rotation @ reference.omega_body
+    desired_omega_in_current_body = (
+        rotation.T @ reference.rotation @ reference.omega_body
+    )
     omega_error = omega_body - desired_omega_in_current_body
     feedforward = (
         hat(omega_body) @ rotation.T @ reference.rotation @ reference.omega_body
@@ -276,7 +298,9 @@ def allocation_weights(args: argparse.Namespace) -> np.ndarray:
     )
 
 
-def set_initial_state(model: mujoco.MjModel, data: mujoco.MjData, args: argparse.Namespace) -> None:
+def set_initial_state(
+    model: mujoco.MjModel, data: mujoco.MjData, args: argparse.Namespace
+) -> None:
     reference = reference_at(0.0, args)
     body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "omni_1")
     joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "omni_1")
@@ -302,10 +326,14 @@ def set_initial_state(model: mujoco.MjModel, data: mujoco.MjData, args: argparse
         raise ValueError("The controller supports free or ball joints only.")
     mujoco.mj_forward(model, data)
     if joint_type == int(mujoco.mjtJoint.mjJNT_BALL) and body_id >= 0:
-        args.reference_position_center = tuple(np.asarray(data.xpos[body_id], dtype=float))
+        args.reference_position_center = tuple(
+            np.asarray(data.xpos[body_id], dtype=float)
+        )
 
 
-def body_state(model: mujoco.MjModel, data: mujoco.MjData) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def body_state(
+    model: mujoco.MjModel, data: mujoco.MjData
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "omni_1")
     joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "omni_1")
     qpos_adr = int(model.jnt_qposadr[joint_id])
@@ -337,7 +365,9 @@ def initialize_motor_state(
 ) -> np.ndarray:
     position, _, velocity, omega_body, rotation = body_state(model, data)
     reference = reference_at(0.0, args)
-    wrench_body, _, _, _ = geometric_pose_controller(position, velocity, rotation, omega_body, reference, args)
+    wrench_body, _, _, _ = geometric_pose_controller(
+        position, velocity, rotation, omega_body, reference, args
+    )
     motor_force, _, _ = allocator.solve(wrench_body)
     omega_actual = np.sqrt(np.maximum(motor_force, 0.0) / args.kf)
     if args.actuator_model == "plugin":
@@ -349,7 +379,9 @@ def initialize_motor_state(
     return omega_actual
 
 
-def launch_passive_viewer(args: argparse.Namespace, model: mujoco.MjModel, data: mujoco.MjData):
+def launch_passive_viewer(
+    args: argparse.Namespace, model: mujoco.MjModel, data: mujoco.MjData
+):
     if not args.viewer:
         return None
     try:
@@ -416,7 +448,9 @@ def run_tracking(args: argparse.Namespace) -> dict[str, np.ndarray | str | float
             raise ValueError("RotorMotor plugin mode requires --tau > 0.")
         load_plugin(args.plugin_library)
 
-    geometry = make_tilted_hex_geometry(args.radius, args.tilt_deg, args.axis_offset_deg, args.km_over_kf)
+    geometry = make_tilted_hex_geometry(
+        args.radius, args.tilt_deg, args.axis_offset_deg, args.km_over_kf
+    )
     xml_text = generated_xml(args, geometry)
     model_path = output_dir / "omnidirectional_hexrotor_geometric_tracking.xml"
     model_path.write_text(xml_text, encoding="utf-8")
@@ -427,7 +461,9 @@ def run_tracking(args: argparse.Namespace) -> dict[str, np.ndarray | str | float
     set_initial_state(model, data, args)
 
     allocation = actuator_matrix(wrenches)
-    omega_squared_allocation = allocation @ np.diag(np.full(model.nu, args.kf, dtype=float))
+    omega_squared_allocation = allocation @ np.diag(
+        np.full(model.nu, args.kf, dtype=float)
+    )
     force_max_scalar = args.kf * args.omega_max * args.omega_max
     force_min = np.zeros(model.nu)
     force_max = np.full(model.nu, force_max_scalar)
@@ -508,25 +544,37 @@ def run_tracking(args: argparse.Namespace) -> dict[str, np.ndarray | str | float
             for step in range(nsteps + 1):
                 step_start_wall_time = wall_time.monotonic()
                 time = float(data.time)
-                position, quat, velocity_world, omega_body, rotation = body_state(model, data)
-                reference = reference_at(time, args)
-                desired_wrench, position_error, attitude_error, omega_error = geometric_pose_controller(
-                    position, velocity_world, rotation, omega_body, reference, args
+                position, quat, velocity_world, omega_body, rotation = body_state(
+                    model, data
                 )
-                motor_force, allocation_residual, allocator_status = allocator.solve(desired_wrench)
-                allocator_status_counts[allocator_status] = allocator_status_counts.get(allocator_status, 0) + 1
+                reference = reference_at(time, args)
+                desired_wrench, position_error, attitude_error, omega_error = (
+                    geometric_pose_controller(
+                        position, velocity_world, rotation, omega_body, reference, args
+                    )
+                )
+                motor_force, allocation_residual, allocator_status = allocator.solve(
+                    desired_wrench
+                )
+                allocator_status_counts[allocator_status] = (
+                    allocator_status_counts.get(allocator_status, 0) + 1
+                )
                 omega_cmd = np.sqrt(np.maximum(motor_force, 0.0) / args.kf)
 
                 if args.actuator_model == "plugin":
                     data.ctrl[:] = omega_cmd
                 else:
                     command_history.append((time, omega_cmd.copy()))
-                    delayed_omega_cmd = delayed_command(time, args.delay, command_history, command_history[0][1])
+                    delayed_omega_cmd = delayed_command(
+                        time, args.delay, command_history, command_history[0][1]
+                    )
                     if args.tau <= 0.0:
                         omega_actual = delayed_omega_cmd.copy()
                     else:
                         alpha = np.exp(-float(model.opt.timestep) / args.tau)
-                        omega_actual = alpha * omega_actual + (1.0 - alpha) * delayed_omega_cmd
+                        omega_actual = (
+                            alpha * omega_actual + (1.0 - alpha) * delayed_omega_cmd
+                        )
                     data.ctrl[:] = args.kf * omega_actual * omega_actual
 
                 mujoco.mj_forward(model, data)
@@ -589,7 +637,9 @@ def run_tracking(args: argparse.Namespace) -> dict[str, np.ndarray | str | float
 
                 if step < nsteps:
                     mujoco.mj_step(model, data)
-                if not sync_viewer(viewer, args, model, step, nsteps, step_start_wall_time):
+                if not sync_viewer(
+                    viewer, args, model, step, nsteps, step_start_wall_time
+                ):
                     break
 
         if viewer is not None and args.viewer_hold:
@@ -630,7 +680,11 @@ def run_tracking(args: argparse.Namespace) -> dict[str, np.ndarray | str | float
     return result
 
 
-def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float], args: argparse.Namespace) -> None:
+def write_summary(
+    output_dir: Path,
+    result: dict[str, np.ndarray | str | float],
+    args: argparse.Namespace,
+) -> None:
     time = np.asarray(result["time"])
     position_error = np.asarray(result["position_error"])
     attitude_error = np.asarray(result["attitude_error"])
@@ -684,10 +738,16 @@ def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float],
         f"allocation singular values: {_fmt(np.asarray(result['singular_values']))}",
         "",
         "Allocation matrix A_force, rows [Fx, Fy, Fz, Mx, My, Mz], columns motor forces:",
-        np.array2string(np.asarray(result["allocation"]), precision=6, suppress_small=True),
+        np.array2string(
+            np.asarray(result["allocation"]), precision=6, suppress_small=True
+        ),
         "",
         "Direct omega^2 matrix A_omega2 = A_force @ diag(kf), rows [Fx, Fy, Fz, Mx, My, Mz]:",
-        np.array2string(np.asarray(result["omega_squared_allocation"]), precision=12, suppress_small=False),
+        np.array2string(
+            np.asarray(result["omega_squared_allocation"]),
+            precision=12,
+            suppress_small=False,
+        ),
         "",
         f"max desired speed norm [m/s]: {float(np.max(desired_speed)):.6g}",
         f"max actual speed norm [m/s]: {float(np.max(speed)):.6g}",
@@ -697,11 +757,11 @@ def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float],
         f"max position error [m]: {float(np.max(np.linalg.norm(position_error, axis=1))):.6g}",
         f"rms attitude error norm: {float(np.sqrt(np.mean(np.sum(attitude_error**2, axis=1)))):.6g}",
         f"max attitude error norm: {float(np.max(np.linalg.norm(attitude_error, axis=1))):.6g}",
-        f"rms attitude error norm after {args.metrics_start_time:.6g} s: {float(np.sqrt(np.mean(np.sum(attitude_error[metrics_mask]**2, axis=1)))):.6g}",
+        f"rms attitude error norm after {args.metrics_start_time:.6g} s: {float(np.sqrt(np.mean(np.sum(attitude_error[metrics_mask] ** 2, axis=1)))):.6g}",
         f"max attitude error norm after {args.metrics_start_time:.6g} s: {float(np.max(np.linalg.norm(attitude_error[metrics_mask], axis=1))):.6g}",
         f"rms omega error [rad/s]: {float(np.sqrt(np.mean(np.sum(omega_error**2, axis=1)))):.6g}",
         f"max omega error [rad/s]: {float(np.max(np.linalg.norm(omega_error, axis=1))):.6g}",
-        f"rms omega error after {args.metrics_start_time:.6g} s [rad/s]: {float(np.sqrt(np.mean(np.sum(omega_error[metrics_mask]**2, axis=1)))):.6g}",
+        f"rms omega error after {args.metrics_start_time:.6g} s [rad/s]: {float(np.sqrt(np.mean(np.sum(omega_error[metrics_mask] ** 2, axis=1)))):.6g}",
         f"max omega error after {args.metrics_start_time:.6g} s [rad/s]: {float(np.max(np.linalg.norm(omega_error[metrics_mask], axis=1))):.6g}",
         "",
         f"motor force command min: {_fmt(np.min(command_force, axis=0))}",
@@ -723,7 +783,9 @@ def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float],
     (output_dir / "summary.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
-def plot_position(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def plot_position(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     time = np.asarray(result["time"])
     position = np.asarray(result["position"])
     desired = np.asarray(result["position_desired"])
@@ -731,12 +793,16 @@ def plot_position(output_dir: Path, result: dict[str, np.ndarray | str | float])
     fig, axes = plt.subplots(4, 1, figsize=(11, 9), sharex=True)
     labels = ("x", "y", "z")
     for i, label in enumerate(labels):
-        axes[i].plot(time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}")
+        axes[i].plot(
+            time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}"
+        )
         axes[i].plot(time, position[:, i], linewidth=0.9, label=f"actual {label}")
         axes[i].set_ylabel(f"{label} [m]")
         axes[i].grid(True, alpha=0.3)
         axes[i].legend(loc="upper right", fontsize=8)
-    axes[3].plot(time, np.linalg.norm(error, axis=1), linewidth=1.0, label="position error norm")
+    axes[3].plot(
+        time, np.linalg.norm(error, axis=1), linewidth=1.0, label="position error norm"
+    )
     axes[3].set_ylabel("error [m]")
     axes[3].set_xlabel("time [s]")
     axes[3].grid(True, alpha=0.3)
@@ -746,7 +812,9 @@ def plot_position(output_dir: Path, result: dict[str, np.ndarray | str | float])
     plt.close(fig)
 
 
-def plot_velocity(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def plot_velocity(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     time = np.asarray(result["time"])
     velocity = np.asarray(result["velocity"])
     desired = np.asarray(result["velocity_desired"])
@@ -754,7 +822,9 @@ def plot_velocity(output_dir: Path, result: dict[str, np.ndarray | str | float])
     desired_speed = np.linalg.norm(desired, axis=1)
     fig, axes = plt.subplots(4, 1, figsize=(11, 9), sharex=True)
     for i, label in enumerate(("vx", "vy", "vz")):
-        axes[i].plot(time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}")
+        axes[i].plot(
+            time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}"
+        )
         axes[i].plot(time, velocity[:, i], linewidth=0.9, label=f"actual {label}")
         axes[i].set_ylabel(f"{label} [m/s]")
         axes[i].grid(True, alpha=0.3)
@@ -771,7 +841,9 @@ def plot_velocity(output_dir: Path, result: dict[str, np.ndarray | str | float])
     plt.close(fig)
 
 
-def plot_attitude(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def plot_attitude(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     time = np.asarray(result["time"])
     rpy = np.unwrap(np.asarray(result["rpy"]), axis=0)
     desired = np.unwrap(np.asarray(result["rpy_desired"]), axis=0)
@@ -779,16 +851,28 @@ def plot_attitude(output_dir: Path, result: dict[str, np.ndarray | str | float])
     omega_error = np.asarray(result["omega_error"])
     fig, axes = plt.subplots(5, 1, figsize=(11, 11), sharex=True)
     for i, label in enumerate(("roll", "pitch", "yaw")):
-        axes[i].plot(time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}")
+        axes[i].plot(
+            time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}"
+        )
         axes[i].plot(time, rpy[:, i], linewidth=0.9, label=f"actual {label}")
         axes[i].set_ylabel(f"{label} [rad]")
         axes[i].grid(True, alpha=0.3)
         axes[i].legend(loc="upper right", fontsize=8)
-    axes[3].plot(time, np.linalg.norm(attitude_error, axis=1), linewidth=1.0, label="attitude error norm")
+    axes[3].plot(
+        time,
+        np.linalg.norm(attitude_error, axis=1),
+        linewidth=1.0,
+        label="attitude error norm",
+    )
     axes[3].set_ylabel("e_R")
     axes[3].grid(True, alpha=0.3)
     axes[3].legend(loc="upper right", fontsize=8)
-    axes[4].plot(time, np.linalg.norm(omega_error, axis=1), linewidth=1.0, label="omega error norm")
+    axes[4].plot(
+        time,
+        np.linalg.norm(omega_error, axis=1),
+        linewidth=1.0,
+        label="omega error norm",
+    )
     axes[4].set_ylabel("e_omega [rad/s]")
     axes[4].set_xlabel("time [s]")
     axes[4].grid(True, alpha=0.3)
@@ -826,9 +910,15 @@ def plot_motors(output_dir: Path, result: dict[str, np.ndarray | str | float]) -
     fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
     for i in range(command_force.shape[1]):
         axes[0].plot(time, command_force[:, i], linewidth=0.9, label=f"cmd f{i + 1}")
-        axes[0].plot(time, applied_force[:, i], "--", linewidth=0.9, label=f"applied f{i + 1}")
-        axes[1].plot(time, command_omega[:, i], linewidth=0.9, label=f"cmd omega{i + 1}")
-        axes[1].plot(time, actual_omega[:, i], "--", linewidth=0.9, label=f"actual omega{i + 1}")
+        axes[0].plot(
+            time, applied_force[:, i], "--", linewidth=0.9, label=f"applied f{i + 1}"
+        )
+        axes[1].plot(
+            time, command_omega[:, i], linewidth=0.9, label=f"cmd omega{i + 1}"
+        )
+        axes[1].plot(
+            time, actual_omega[:, i], "--", linewidth=0.9, label=f"actual omega{i + 1}"
+        )
     axes[0].set_ylabel("motor force [N]")
     axes[1].set_ylabel("motor omega [rad/s]")
     axes[1].set_xlabel("time [s]")
@@ -840,13 +930,24 @@ def plot_motors(output_dir: Path, result: dict[str, np.ndarray | str | float]) -
     plt.close(fig)
 
 
-def plot_trajectory(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def plot_trajectory(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     position = np.asarray(result["position"])
     desired = np.asarray(result["position_desired"])
     fig = plt.figure(figsize=(8, 7))
     axis = fig.add_subplot(111, projection="3d")
-    axis.plot(desired[:, 0], desired[:, 1], desired[:, 2], "k--", linewidth=1.0, label="desired")
-    axis.plot(position[:, 0], position[:, 1], position[:, 2], linewidth=1.0, label="actual")
+    axis.plot(
+        desired[:, 0],
+        desired[:, 1],
+        desired[:, 2],
+        "k--",
+        linewidth=1.0,
+        label="desired",
+    )
+    axis.plot(
+        position[:, 0], position[:, 1], position[:, 2], linewidth=1.0, label="actual"
+    )
     axis.set_xlabel("x [m]")
     axis.set_ylabel("y [m]")
     axis.set_zlabel("z [m]")
@@ -857,7 +958,11 @@ def plot_trajectory(output_dir: Path, result: dict[str, np.ndarray | str | float
     plt.close(fig)
 
 
-def save_results(output_dir: Path, result: dict[str, np.ndarray | str | float], args: argparse.Namespace) -> None:
+def save_results(
+    output_dir: Path,
+    result: dict[str, np.ndarray | str | float],
+    args: argparse.Namespace,
+) -> None:
     save_matrix(
         output_dir / "allocation_matrix_force_to_wrench.txt",
         np.asarray(result["allocation"]),
@@ -878,7 +983,9 @@ def save_results(output_dir: Path, result: dict[str, np.ndarray | str | float], 
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run 6-DOF geometric pose tracking for the tilted hexrotor.")
+    parser = argparse.ArgumentParser(
+        description="Run 6-DOF geometric pose tracking for the tilted hexrotor."
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument(
         "--actuator-model",
@@ -914,9 +1021,24 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Keep the viewer open at the final state until the window is closed.",
     )
-    parser.add_argument("--viewer-distance", type=float, default=8.0, help="Tracking camera distance [m].")
-    parser.add_argument("--viewer-azimuth", type=float, default=135.0, help="Tracking camera azimuth [deg].")
-    parser.add_argument("--viewer-elevation", type=float, default=-20.0, help="Tracking camera elevation [deg].")
+    parser.add_argument(
+        "--viewer-distance",
+        type=float,
+        default=8.0,
+        help="Tracking camera distance [m].",
+    )
+    parser.add_argument(
+        "--viewer-azimuth",
+        type=float,
+        default=135.0,
+        help="Tracking camera azimuth [deg].",
+    )
+    parser.add_argument(
+        "--viewer-elevation",
+        type=float,
+        default=-20.0,
+        help="Tracking camera elevation [deg].",
+    )
     parser.add_argument("--plugin-library", type=Path, default=DEFAULT_PLUGIN)
     parser.add_argument("--mass", type=float, default=0.85)
     parser.add_argument("--inertia", nargs=3, type=float, default=(0.01, 0.01, 0.02))
@@ -927,8 +1049,12 @@ def parse_args() -> argparse.Namespace:
         help="Use ball for attitude tuning, free for full translational pose tracking.",
     )
     parser.add_argument("--initial-height", type=float, default=3.0)
-    parser.add_argument("--initial-position-offset", nargs=3, type=float, default=(0.03, -0.02, 0.02))
-    parser.add_argument("--initial-rpy-offset", nargs=3, type=float, default=(0.03, -0.02, 0.04))
+    parser.add_argument(
+        "--initial-position-offset", nargs=3, type=float, default=(0.03, -0.02, 0.02)
+    )
+    parser.add_argument(
+        "--initial-rpy-offset", nargs=3, type=float, default=(0.03, -0.02, 0.04)
+    )
     parser.add_argument("--radius", type=float, default=0.16)
     parser.add_argument("--tilt-deg", type=float, default=35.0)
     parser.add_argument("--axis-offset-deg", type=float, default=30.0)
@@ -951,32 +1077,76 @@ def parse_args() -> argparse.Namespace:
         default=1.0e-9,
         help="Small force regularization rho in the allocation QP.",
     )
-    parser.add_argument("--osqp-eps-abs", type=float, default=1.0e-7, help="OSQP absolute tolerance.")
-    parser.add_argument("--osqp-eps-rel", type=float, default=1.0e-7, help="OSQP relative tolerance.")
-    parser.add_argument("--osqp-max-iter", type=int, default=4000, help="OSQP maximum iterations.")
+    parser.add_argument(
+        "--osqp-eps-abs", type=float, default=1.0e-7, help="OSQP absolute tolerance."
+    )
+    parser.add_argument(
+        "--osqp-eps-rel", type=float, default=1.0e-7, help="OSQP relative tolerance."
+    )
+    parser.add_argument(
+        "--osqp-max-iter", type=int, default=4000, help="OSQP maximum iterations."
+    )
     parser.add_argument(
         "--osqp-polish",
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Enable OSQP polishing.",
     )
-    parser.add_argument("--osqp-verbose", action="store_true", help="Print OSQP solver output.")
-    parser.add_argument("--floor-size", type=float, default=30.0, help="Rendered checker-floor half-size [m].")
+    parser.add_argument(
+        "--osqp-verbose", action="store_true", help="Print OSQP solver output."
+    )
+    parser.add_argument(
+        "--floor-size",
+        type=float,
+        default=30.0,
+        help="Rendered checker-floor half-size [m].",
+    )
     parser.add_argument("--duration", type=float, default=30.0)
     parser.add_argument("--gravity-z", type=float, default=-9.81)
     parser.add_argument("--kp-position", nargs=3, type=float, default=(2.0, 2.0, 3.0))
     parser.add_argument("--kd-position", nargs=3, type=float, default=(2.5, 2.5, 3.0))
-    parser.add_argument("--kr-attitude", nargs=3, type=float, default=(0.70, 0.70, 0.95))
-    parser.add_argument("--kw-attitude", nargs=3, type=float, default=(0.18, 0.18, 0.24))
-    parser.add_argument("--allocation-force-weights", nargs=3, type=float, default=(1.0, 1.0, 1.0))
-    parser.add_argument("--allocation-moment-weights", nargs=3, type=float, default=(1.0, 1.0, 1.0))
-    parser.add_argument("--reference-position-center", nargs=3, type=float, default=(0.0, 0.0, 3.0))
-    parser.add_argument("--reference-position-amplitude", nargs=3, type=float, default=(11.5, 4.0, 0.30))
-    parser.add_argument("--reference-position-frequency", nargs=3, type=float, default=(0.04, 0.03, 0.04))
-    parser.add_argument("--reference-position-phase", nargs=3, type=float, default=(0.0, 0.0, 0.4))
-    parser.add_argument("--reference-attitude-amplitude", nargs=3, type=float, default=(0.08, 0.06, 0.18))
-    parser.add_argument("--reference-attitude-frequency", nargs=3, type=float, default=(0.06, 0.05, 0.04))
-    parser.add_argument("--reference-attitude-phase", nargs=3, type=float, default=(0.3, 1.1, 0.2))
+    parser.add_argument(
+        "--kr-attitude", nargs=3, type=float, default=(0.70, 0.70, 0.95)
+    )
+    parser.add_argument(
+        "--kw-attitude", nargs=3, type=float, default=(0.18, 0.18, 0.24)
+    )
+    parser.add_argument(
+        "--allocation-force-weights", nargs=3, type=float, default=(1.0, 1.0, 1.0)
+    )
+    parser.add_argument(
+        "--allocation-moment-weights", nargs=3, type=float, default=(1.0, 1.0, 1.0)
+    )
+    parser.add_argument(
+        "--reference-position-center", nargs=3, type=float, default=(0.0, 0.0, 3.0)
+    )
+    parser.add_argument(
+        "--reference-position-amplitude", nargs=3, type=float, default=(11.5, 4.0, 0.30)
+    )
+    parser.add_argument(
+        "--reference-position-frequency",
+        nargs=3,
+        type=float,
+        default=(0.04, 0.03, 0.04),
+    )
+    parser.add_argument(
+        "--reference-position-phase", nargs=3, type=float, default=(0.0, 0.0, 0.4)
+    )
+    parser.add_argument(
+        "--reference-attitude-amplitude",
+        nargs=3,
+        type=float,
+        default=(0.08, 0.06, 0.18),
+    )
+    parser.add_argument(
+        "--reference-attitude-frequency",
+        nargs=3,
+        type=float,
+        default=(0.06, 0.05, 0.04),
+    )
+    parser.add_argument(
+        "--reference-attitude-phase", nargs=3, type=float, default=(0.3, 1.1, 0.2)
+    )
     parser.add_argument("--metrics-start-time", type=float, default=2.0)
     parser.add_argument("--orientation-diff-step", type=float, default=1.0e-4)
     return parser.parse_args()
@@ -1011,9 +1181,15 @@ def main() -> None:
     print(f"allocation condition number: {float(result['condition_number']):.6g}")
     print(f"max desired speed: {float(np.max(desired_speed)):.6g} m/s")
     print(f"max actual speed: {float(np.max(speed)):.6g} m/s")
-    print(f"max position error: {float(np.max(np.linalg.norm(position_error, axis=1))):.6g} m")
-    print(f"rms position error: {float(np.sqrt(np.mean(np.sum(position_error**2, axis=1)))):.6g} m")
-    print(f"max attitude error norm: {float(np.max(np.linalg.norm(attitude_error, axis=1))):.6g}")
+    print(
+        f"max position error: {float(np.max(np.linalg.norm(position_error, axis=1))):.6g} m"
+    )
+    print(
+        f"rms position error: {float(np.sqrt(np.mean(np.sum(position_error**2, axis=1)))):.6g} m"
+    )
+    print(
+        f"max attitude error norm: {float(np.max(np.linalg.norm(attitude_error, axis=1))):.6g}"
+    )
     print(
         f"max attitude error norm after {args.metrics_start_time:.6g} s: "
         f"{float(np.max(np.linalg.norm(attitude_error[metrics_mask], axis=1))):.6g}"

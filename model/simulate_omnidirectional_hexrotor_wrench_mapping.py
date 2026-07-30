@@ -48,7 +48,9 @@ from compare_quadrotor_actuator_wrenches import actuator_matrix, load_actuator_w
 THIS_DIR = Path(__file__).resolve().parent
 WS_DIR = THIS_DIR.parents[2]
 DEFAULT_OUTPUT_DIR = THIS_DIR / "omnidirectional_hexrotor_wrench_mapping_results"
-DEFAULT_PLUGIN = WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+DEFAULT_PLUGIN = (
+    WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+)
 DEFAULT_KF = 2.063751543951938e-06
 WRENCH_NAMES = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
 _PLUGIN_LOADED = False
@@ -92,7 +94,9 @@ class ScipyBoundedLeastSquaresAllocator:
             forces = result.x
             status = f"scipy_lsq_linear_status_{result.status}"
         except Exception:
-            forces, *_ = np.linalg.lstsq(self.weighted_allocation, weighted_desired, rcond=None)
+            forces, *_ = np.linalg.lstsq(
+                self.weighted_allocation, weighted_desired, rcond=None
+            )
             forces = np.clip(forces, self.force_min, self.force_max)
             status = "numpy_lstsq_clipped"
         return forces, self.allocation @ forces - desired, status
@@ -149,16 +153,22 @@ class OsqpBoundedLeastSquaresAllocator:
         status = getattr(result.info, "status", "unknown")
         if result.x is None or "solved" not in status.lower():
             raise RuntimeError(f"OSQP allocation failed with status: {status}")
-        forces = np.clip(np.asarray(result.x, dtype=float), self.force_min, self.force_max)
+        forces = np.clip(
+            np.asarray(result.x, dtype=float), self.force_min, self.force_max
+        )
         return forces, self.allocation @ forces - desired, f"osqp_{status}"
 
 
-def _allocator_weights(allocation: np.ndarray, weights: np.ndarray | None) -> np.ndarray:
+def _allocator_weights(
+    allocation: np.ndarray, weights: np.ndarray | None
+) -> np.ndarray:
     if weights is None:
         return np.ones(allocation.shape[0], dtype=float)
     values = np.asarray(weights, dtype=float)
     if values.shape != (allocation.shape[0],):
-        raise ValueError(f"Expected {allocation.shape[0]} allocation weights, got shape {values.shape}.")
+        raise ValueError(
+            f"Expected {allocation.shape[0]} allocation weights, got shape {values.shape}."
+        )
     return values
 
 
@@ -193,10 +203,14 @@ def make_bounded_motor_force_allocator(
         except Exception as exc:
             if not fallback_to_scipy:
                 raise
-            print(f"OSQP allocator unavailable ({exc}); falling back to SciPy bounded least squares.")
+            print(
+                f"OSQP allocator unavailable ({exc}); falling back to SciPy bounded least squares."
+            )
     elif allocator != "scipy":
         raise ValueError(f"Unsupported allocator: {allocator}")
-    return ScipyBoundedLeastSquaresAllocator(allocation, force_min, force_max, weights=weights)
+    return ScipyBoundedLeastSquaresAllocator(
+        allocation, force_min, force_max, weights=weights
+    )
 
 
 def preload_allocator_backend(allocator: str) -> None:
@@ -206,7 +220,11 @@ def preload_allocator_backend(allocator: str) -> None:
 
 
 def _fmt(values: np.ndarray) -> str:
-    return "[" + ", ".join(f"{value:.6g}" for value in np.asarray(values, dtype=float)) + "]"
+    return (
+        "["
+        + ", ".join(f"{value:.6g}" for value in np.asarray(values, dtype=float))
+        + "]"
+    )
 
 
 def load_plugin(plugin_library: Path) -> None:
@@ -220,8 +238,16 @@ def load_plugin(plugin_library: Path) -> None:
         )
     workspace_dir = THIS_DIR.parents[2]
     preload_libraries = (
-        workspace_dir / "install" / "mujoco_ros_utils" / "lib" / "libmujoco_ros_utils__rosidl_typesupport_cpp.so",
-        workspace_dir / "install" / "quadrotor_msgs" / "lib" / "libquadrotor_msgs__rosidl_typesupport_cpp.so",
+        workspace_dir
+        / "install"
+        / "mujoco_ros_utils"
+        / "lib"
+        / "libmujoco_ros_utils__rosidl_typesupport_cpp.so",
+        workspace_dir
+        / "install"
+        / "quadrotor_msgs"
+        / "lib"
+        / "libquadrotor_msgs__rosidl_typesupport_cpp.so",
     )
     for library in preload_libraries:
         if library.exists():
@@ -245,7 +271,9 @@ def activation_by_actuator(model: mujoco.MjModel, data: mujoco.MjData) -> np.nda
     return np.asarray(values, dtype=float)
 
 
-def set_activation_by_actuator(model: mujoco.MjModel, data: mujoco.MjData, values: np.ndarray) -> None:
+def set_activation_by_actuator(
+    model: mujoco.MjModel, data: mujoco.MjData, values: np.ndarray
+) -> None:
     for actuator_id, value in enumerate(np.asarray(values, dtype=float)):
         act_adr = int(model.actuator_actadr[actuator_id])
         act_num = int(model.actuator_actnum[actuator_id])
@@ -425,7 +453,13 @@ def solve_bounded_motor_forces(
     return motor_allocator.solve(desired)
 
 
-def desired_wrench(time: float, nominal: np.ndarray, amplitude: np.ndarray, frequency: np.ndarray, phase: np.ndarray) -> np.ndarray:
+def desired_wrench(
+    time: float,
+    nominal: np.ndarray,
+    amplitude: np.ndarray,
+    frequency: np.ndarray,
+    phase: np.ndarray,
+) -> np.ndarray:
     return nominal + amplitude * np.sin(2.0 * np.pi * frequency * time + phase)
 
 
@@ -446,11 +480,15 @@ def delayed_command(
     return selected
 
 
-def free_joint_state(model: mujoco.MjModel, data: mujoco.MjData) -> tuple[np.ndarray, np.ndarray]:
+def free_joint_state(
+    model: mujoco.MjModel, data: mujoco.MjData
+) -> tuple[np.ndarray, np.ndarray]:
     joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "omni_1")
     qpos_adr = int(model.jnt_qposadr[joint_id])
     qvel_adr = int(model.jnt_dofadr[joint_id])
-    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[qvel_adr : qvel_adr + 6].copy()
+    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[
+        qvel_adr : qvel_adr + 6
+    ].copy()
 
 
 def run_validation(args: argparse.Namespace) -> dict[str, np.ndarray | str | float]:
@@ -462,7 +500,9 @@ def run_validation(args: argparse.Namespace) -> dict[str, np.ndarray | str | flo
             raise ValueError("RotorMotor plugin mode requires --tau > 0.")
         load_plugin(args.plugin_library)
 
-    geometry = make_tilted_hex_geometry(args.radius, args.tilt_deg, args.axis_offset_deg, args.km_over_kf)
+    geometry = make_tilted_hex_geometry(
+        args.radius, args.tilt_deg, args.axis_offset_deg, args.km_over_kf
+    )
     xml_text = generated_xml(args, geometry)
     model_path = output_dir / "omnidirectional_hexrotor_validation.xml"
     model_path.write_text(xml_text, encoding="utf-8")
@@ -527,10 +567,10 @@ def run_validation(args: argparse.Namespace) -> dict[str, np.ndarray | str | flo
     header += [f"command_wrench_{name}" for name in WRENCH_NAMES]
     header += [f"applied_wrench_{name}" for name in WRENCH_NAMES]
     header += [f"allocation_residual_{name}" for name in WRENCH_NAMES]
-    header += [f"motor_force_cmd_{i+1}" for i in range(model.nu)]
-    header += [f"omega_cmd_{i+1}" for i in range(model.nu)]
-    header += [f"omega_actual_{i+1}" for i in range(model.nu)]
-    header += [f"motor_force_applied_{i+1}" for i in range(model.nu)]
+    header += [f"motor_force_cmd_{i + 1}" for i in range(model.nu)]
+    header += [f"omega_cmd_{i + 1}" for i in range(model.nu)]
+    header += [f"omega_actual_{i + 1}" for i in range(model.nu)]
+    header += [f"motor_force_applied_{i + 1}" for i in range(model.nu)]
     header += ["qpos_x", "qpos_y", "qpos_z", "qpos_qw", "qpos_qx", "qpos_qy", "qpos_qz"]
     header += ["qvel_x", "qvel_y", "qvel_z", "qvel_wx", "qvel_wy", "qvel_wz"]
 
@@ -542,21 +582,28 @@ def run_validation(args: argparse.Namespace) -> dict[str, np.ndarray | str | flo
             time = float(data.time)
             desired = desired_wrench(time, nominal_wrench, amplitude, frequency, phase)
             force_cmd, residual, allocator_status = allocator.solve(desired)
-            allocator_status_counts[allocator_status] = allocator_status_counts.get(allocator_status, 0) + 1
+            allocator_status_counts[allocator_status] = (
+                allocator_status_counts.get(allocator_status, 0) + 1
+            )
             omega_cmd = np.sqrt(np.maximum(force_cmd, 0.0) / args.kf)
 
             if args.actuator_model == "plugin":
                 data.ctrl[:] = omega_cmd
             else:
                 command_history.append((time, omega_cmd.copy()))
-                delayed_omega_cmd = delayed_command(time, args.delay, command_history, command_history[0][1])
+                delayed_omega_cmd = delayed_command(
+                    time, args.delay, command_history, command_history[0][1]
+                )
 
                 if args.tau <= 0.0:
                     omega_actual = delayed_omega_cmd.copy()
                 else:
                     dt = float(model.opt.timestep)
                     filter_alpha = np.exp(-dt / args.tau)
-                    omega_actual = filter_alpha * omega_actual + (1.0 - filter_alpha) * delayed_omega_cmd
+                    omega_actual = (
+                        filter_alpha * omega_actual
+                        + (1.0 - filter_alpha) * delayed_omega_cmd
+                    )
 
                 applied_force = args.kf * omega_actual * omega_actual
                 data.ctrl[:] = applied_force
@@ -638,7 +685,9 @@ def save_matrix(path: Path, matrix: np.ndarray, header: str) -> None:
     np.savetxt(path, matrix, fmt="%.12g", header=header)
 
 
-def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def write_summary(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     desired = np.asarray(result["desired_wrench"])
     command = np.asarray(result["command_wrench"])
     applied = np.asarray(result["applied_wrench"])
@@ -670,10 +719,16 @@ def write_summary(output_dir: Path, result: dict[str, np.ndarray | str | float])
         f"nominal wrench [Fx, Fy, Fz, Mx, My, Mz]: {_fmt(np.asarray(result['nominal_wrench']))}",
         "",
         "Allocation matrix A_force, rows [Fx, Fy, Fz, Mx, My, Mz], columns motor forces:",
-        np.array2string(np.asarray(result["allocation"]), precision=6, suppress_small=True),
+        np.array2string(
+            np.asarray(result["allocation"]), precision=6, suppress_small=True
+        ),
         "",
         "Direct omega^2 matrix A_omega2 = A_force @ diag(kf), rows [Fx, Fy, Fz, Mx, My, Mz]:",
-        np.array2string(np.asarray(result["omega_squared_allocation"]), precision=12, suppress_small=False),
+        np.array2string(
+            np.asarray(result["omega_squared_allocation"]),
+            precision=12,
+            suppress_small=False,
+        ),
         "",
         f"motor force command min: {_fmt(np.min(command_force, axis=0))}",
         f"motor force command max: {_fmt(np.max(command_force, axis=0))}",
@@ -701,7 +756,9 @@ def plot_wrench(output_dir: Path, result: dict[str, np.ndarray | str | float]) -
     fig, axes = plt.subplots(6, 1, figsize=(12, 12), sharex=True)
     for i, (axis, label) in enumerate(zip(axes, WRENCH_NAMES)):
         axis.plot(time, desired[:, i], "k--", linewidth=1.0, label=f"desired {label}")
-        axis.plot(time, command[:, i], linewidth=0.9, label=f"allocated command {label}")
+        axis.plot(
+            time, command[:, i], linewidth=0.9, label=f"allocated command {label}"
+        )
         axis.plot(time, applied[:, i], linewidth=0.9, label=f"applied {label}")
         axis.set_ylabel(label)
         axis.grid(True, alpha=0.3)
@@ -722,9 +779,15 @@ def plot_motors(output_dir: Path, result: dict[str, np.ndarray | str | float]) -
     fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
     for i in range(command_force.shape[1]):
         axes[0].plot(time, command_force[:, i], linewidth=0.9, label=f"cmd f{i + 1}")
-        axes[0].plot(time, applied_force[:, i], "--", linewidth=0.9, label=f"applied f{i + 1}")
-        axes[1].plot(time, command_omega[:, i], linewidth=0.9, label=f"cmd omega{i + 1}")
-        axes[1].plot(time, actual_omega[:, i], "--", linewidth=0.9, label=f"actual omega{i + 1}")
+        axes[0].plot(
+            time, applied_force[:, i], "--", linewidth=0.9, label=f"applied f{i + 1}"
+        )
+        axes[1].plot(
+            time, command_omega[:, i], linewidth=0.9, label=f"cmd omega{i + 1}"
+        )
+        axes[1].plot(
+            time, actual_omega[:, i], "--", linewidth=0.9, label=f"actual omega{i + 1}"
+        )
     axes[0].set_ylabel("motor force [N]")
     axes[1].set_ylabel("motor omega [rad/s]")
     axes[1].set_xlabel("time [s]")
@@ -736,7 +799,9 @@ def plot_motors(output_dir: Path, result: dict[str, np.ndarray | str | float]) -
     plt.close(fig)
 
 
-def plot_position(output_dir: Path, result: dict[str, np.ndarray | str | float]) -> None:
+def plot_position(
+    output_dir: Path, result: dict[str, np.ndarray | str | float]
+) -> None:
     time = np.asarray(result["times"])
     qpos = np.asarray(result["qpos"])
     fig, axes = plt.subplots(3, 1, figsize=(10, 7), sharex=True)
@@ -752,7 +817,9 @@ def plot_position(output_dir: Path, result: dict[str, np.ndarray | str | float])
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate a 6-motor omnidirectional wrench allocation.")
+    parser = argparse.ArgumentParser(
+        description="Validate a 6-motor omnidirectional wrench allocation."
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument(
         "--actuator-model",
@@ -775,28 +842,69 @@ def parse_args() -> argparse.Namespace:
         metavar=("IXX", "IYY", "IZZ"),
         help="Body diagonal inertia used by the generated visual validation model [kg m^2].",
     )
-    parser.add_argument("--initial-height", type=float, default=2.0, help="Initial body height in the viewer [m].")
+    parser.add_argument(
+        "--initial-height",
+        type=float,
+        default=2.0,
+        help="Initial body height in the viewer [m].",
+    )
     parser.add_argument(
         "--joint-type",
         choices=("free", "ball"),
         default="free",
         help="Body joint in the generated model. Use ball for attitude-only test-stand validation.",
     )
-    parser.add_argument("--radius", type=float, default=0.16, help="Rotor radius from body origin [m].")
-    parser.add_argument("--tilt-deg", type=float, default=35.0, help="Rotor axis tilt away from body z [deg].")
+    parser.add_argument(
+        "--radius", type=float, default=0.16, help="Rotor radius from body origin [m]."
+    )
+    parser.add_argument(
+        "--tilt-deg",
+        type=float,
+        default=35.0,
+        help="Rotor axis tilt away from body z [deg].",
+    )
     parser.add_argument(
         "--axis-offset-deg",
         type=float,
         default=30.0,
         help="Alternating rotor-axis azimuth offset relative to radial direction [deg].",
     )
-    parser.add_argument("--km-over-kf", type=float, default=0.015, help="Rotor drag torque per thrust [m].")
-    parser.add_argument("--kf", type=float, default=DEFAULT_KF, help="Thrust coefficient [N/(rad/s)^2].")
-    parser.add_argument("--omega-max", type=float, default=3000.0, help="Maximum motor speed [rad/s].")
-    parser.add_argument("--nominal-motor-force", type=float, default=2.0, help="Nominal force per motor [N].")
-    parser.add_argument("--tau", type=float, default=0.025, help="First-order motor speed time constant [s].")
-    parser.add_argument("--delay", type=float, default=0.018, help="Pure command delay for motor speed command [s].")
-    parser.add_argument("--nsample", type=int, default=8, help="MuJoCo actuator input-delay sample count.")
+    parser.add_argument(
+        "--km-over-kf",
+        type=float,
+        default=0.015,
+        help="Rotor drag torque per thrust [m].",
+    )
+    parser.add_argument(
+        "--kf", type=float, default=DEFAULT_KF, help="Thrust coefficient [N/(rad/s)^2]."
+    )
+    parser.add_argument(
+        "--omega-max", type=float, default=3000.0, help="Maximum motor speed [rad/s]."
+    )
+    parser.add_argument(
+        "--nominal-motor-force",
+        type=float,
+        default=2.0,
+        help="Nominal force per motor [N].",
+    )
+    parser.add_argument(
+        "--tau",
+        type=float,
+        default=0.025,
+        help="First-order motor speed time constant [s].",
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=0.018,
+        help="Pure command delay for motor speed command [s].",
+    )
+    parser.add_argument(
+        "--nsample",
+        type=int,
+        default=8,
+        help="MuJoCo actuator input-delay sample count.",
+    )
     parser.add_argument("--dt", type=float, default=0.002)
     parser.add_argument(
         "--allocator",
@@ -810,17 +918,30 @@ def parse_args() -> argparse.Namespace:
         default=1.0e-9,
         help="Small force regularization rho in the allocation QP.",
     )
-    parser.add_argument("--osqp-eps-abs", type=float, default=1.0e-7, help="OSQP absolute tolerance.")
-    parser.add_argument("--osqp-eps-rel", type=float, default=1.0e-7, help="OSQP relative tolerance.")
-    parser.add_argument("--osqp-max-iter", type=int, default=4000, help="OSQP maximum iterations.")
+    parser.add_argument(
+        "--osqp-eps-abs", type=float, default=1.0e-7, help="OSQP absolute tolerance."
+    )
+    parser.add_argument(
+        "--osqp-eps-rel", type=float, default=1.0e-7, help="OSQP relative tolerance."
+    )
+    parser.add_argument(
+        "--osqp-max-iter", type=int, default=4000, help="OSQP maximum iterations."
+    )
     parser.add_argument(
         "--osqp-polish",
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Enable OSQP polishing.",
     )
-    parser.add_argument("--osqp-verbose", action="store_true", help="Print OSQP solver output.")
-    parser.add_argument("--floor-size", type=float, default=10.0, help="Rendered checker-floor half-size [m].")
+    parser.add_argument(
+        "--osqp-verbose", action="store_true", help="Print OSQP solver output."
+    )
+    parser.add_argument(
+        "--floor-size",
+        type=float,
+        default=10.0,
+        help="Rendered checker-floor half-size [m].",
+    )
     parser.add_argument(
         "--gravity-z",
         type=float,
@@ -885,7 +1006,9 @@ def main() -> None:
     print(f"allocation rank: {int(result['rank'])}")
     print(f"allocation condition number: {float(result['condition_number']):.6g}")
     print(f"singular values: {_fmt(np.asarray(result['singular_values']))}")
-    print(f"nominal wrench [Fx, Fy, Fz, Mx, My, Mz]: {_fmt(np.asarray(result['nominal_wrench']))}")
+    print(
+        f"nominal wrench [Fx, Fy, Fz, Mx, My, Mz]: {_fmt(np.asarray(result['nominal_wrench']))}"
+    )
     print(
         "max abs command wrench error [Fx, Fy, Fz, Mx, My, Mz]: "
         f"{_fmt(np.max(np.abs(command - desired), axis=0))}"
@@ -895,7 +1018,9 @@ def main() -> None:
         f"{_fmt(np.max(np.abs(applied - desired), axis=0))}"
     )
     print(f"summary: {output_dir / 'summary.txt'}")
-    print(f"plots: {output_dir / 'wrench_tracking.png'}, {output_dir / 'motor_forces_and_speeds.png'}")
+    print(
+        f"plots: {output_dir / 'wrench_tracking.png'}, {output_dir / 'motor_forces_and_speeds.png'}"
+    )
 
 
 if __name__ == "__main__":

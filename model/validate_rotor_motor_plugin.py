@@ -30,11 +30,15 @@ import numpy as np
 
 THIS_DIR = Path(__file__).resolve().parent
 WS_DIR = THIS_DIR.parents[2]
-DEFAULT_PLUGIN = WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+DEFAULT_PLUGIN = (
+    WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+)
 _PLUGIN_LOADED = False
 
 
-def make_model_xml(kf: float, tau: float, km_over_kf: float, omega_max: float, dt: float) -> str:
+def make_model_xml(
+    kf: float, tau: float, km_over_kf: float, omega_max: float, dt: float
+) -> str:
     return f"""
 <mujoco model="rotor_motor_plugin_validation">
   <compiler angle="radian"/>
@@ -153,7 +157,14 @@ def save_results(
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    static_data = np.column_stack((static_omega, static_measured, static_expected, static_measured - static_expected))
+    static_data = np.column_stack(
+        (
+            static_omega,
+            static_measured,
+            static_expected,
+            static_measured - static_expected,
+        )
+    )
     np.savetxt(
         output_dir / "static_force_law.csv",
         static_data,
@@ -195,12 +206,24 @@ def save_results(
 
     fig, axes = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
     axes[0].plot(step["time"], step["ctrl_omega_cmd"], "k--", label="omega_cmd")
-    axes[0].plot(step["time"], step["omega_expected"], "tab:gray", linestyle=":", label="first-order expected")
+    axes[0].plot(
+        step["time"],
+        step["omega_expected"],
+        "tab:gray",
+        linestyle=":",
+        label="first-order expected",
+    )
     axes[0].plot(step["time"], step["omega"], label="plugin omega")
     axes[0].set_ylabel("omega [rad/s]")
     axes[0].grid(True)
     axes[0].legend(loc="best")
-    axes[1].plot(step["time"], step["thrust_expected"], "tab:gray", linestyle=":", label="kf omega_expected^2")
+    axes[1].plot(
+        step["time"],
+        step["thrust_expected"],
+        "tab:gray",
+        linestyle=":",
+        label="kf omega_expected^2",
+    )
     axes[1].plot(step["time"], step["thrust"], label="plugin thrust")
     axes[1].set_xlabel("time [s]")
     axes[1].set_ylabel("thrust [N]")
@@ -215,7 +238,9 @@ def save_results(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plugin-library", type=Path, default=DEFAULT_PLUGIN)
-    parser.add_argument("--output-dir", type=Path, default=THIS_DIR / "rotor_motor_validation_results")
+    parser.add_argument(
+        "--output-dir", type=Path, default=THIS_DIR / "rotor_motor_validation_results"
+    )
     parser.add_argument("--kf", type=float, default=2.110740925780823e-06)
     parser.add_argument("--km-over-kf", type=float, default=0.015)
     parser.add_argument("--tau", type=float, default=0.025)
@@ -230,7 +255,9 @@ def main() -> None:
     args = parse_args()
     model, data = load_model(args)
     static_omega = np.linspace(0.0, args.omega_max, 11)
-    static_measured, static_expected = validate_static_force_law(model, data, args.kf, static_omega)
+    static_measured, static_expected = validate_static_force_law(
+        model, data, args.kf, static_omega
+    )
     static_error = np.max(np.abs(static_measured - static_expected))
 
     model, data = load_model(args)
@@ -241,7 +268,9 @@ def main() -> None:
 
     print(f"Saved validation results to: {args.output_dir}")
     print(f"Static force law max abs error: {static_error:.6e} N")
-    print(f"Step response max abs thrust difference from continuous first-order reference: {step_error:.6e} N")
+    print(
+        f"Step response max abs thrust difference from continuous first-order reference: {step_error:.6e} N"
+    )
     print(f"Final omega: {step['omega'][-1]:.6f} rad/s")
     print(f"Final thrust: {step['thrust'][-1]:.6f} N")
 

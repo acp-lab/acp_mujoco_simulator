@@ -13,7 +13,7 @@
   <xacro:arg name="payload_x" default="0.0"/>
   <xacro:arg name="payload_y" default="0.0"/>
   <xacro:arg name="payload_z" default="0.29"/>
-  <xacro:arg name="payload_radius" default="0.03"/>
+  <xacro:arg name="payload_radius" default="0.035"/>
   <xacro:arg name="payload_mass" default="0.2"/>
   <xacro:arg name="payload_damping" default="0.2"/>
   <xacro:arg name="cable_length" default="1.0"/>

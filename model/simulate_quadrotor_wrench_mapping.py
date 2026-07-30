@@ -92,7 +92,9 @@ def _free_joint_state(
 
     qpos_adr = int(model.jnt_qposadr[joint_id])
     qvel_adr = int(model.jnt_dofadr[joint_id])
-    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[qvel_adr : qvel_adr + 6].copy()
+    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[
+        qvel_adr : qvel_adr + 6
+    ].copy()
 
 
 def _csv_header(model: mujoco.MjModel) -> list[str]:
@@ -149,7 +151,9 @@ def _activation_column_names(model: mujoco.MjModel) -> list[str]:
     return names
 
 
-def _activation_values_by_actuator(model: mujoco.MjModel, data: mujoco.MjData) -> np.ndarray:
+def _activation_values_by_actuator(
+    model: mujoco.MjModel, data: mujoco.MjData
+) -> np.ndarray:
     values = []
     for actuator_id in range(model.nu):
         act_adr = int(model.actuator_actadr[actuator_id])
@@ -160,7 +164,9 @@ def _activation_values_by_actuator(model: mujoco.MjModel, data: mujoco.MjData) -
     return np.asarray(values, dtype=float)
 
 
-def run_simulation(config: SimulationConfig) -> dict[str, np.ndarray | int | float | str]:
+def run_simulation(
+    config: SimulationConfig,
+) -> dict[str, np.ndarray | int | float | str]:
     model, wrenches = load_actuator_wrenches(config.model_path, config.body_name)
     model.opt.gravity[:] = 0.0
     data = mujoco.MjData(model)
@@ -262,8 +268,12 @@ def run_simulation(config: SimulationConfig) -> dict[str, np.ndarray | int | flo
         "allocation_residual": np.asarray(allocation_residual_log),
         "control_min": np.min(controls_array, axis=0),
         "control_max": np.max(controls_array, axis=0),
-        "activation_min": np.min(activation_array, axis=0) if activation_array.size else np.asarray([]),
-        "activation_max": np.max(activation_array, axis=0) if activation_array.size else np.asarray([]),
+        "activation_min": np.min(activation_array, axis=0)
+        if activation_array.size
+        else np.asarray([]),
+        "activation_max": np.max(activation_array, axis=0)
+        if activation_array.size
+        else np.asarray([]),
         "max_abs_wrench_error": np.max(np.abs(errors_array), axis=0),
         "rms_wrench_error": np.sqrt(np.mean(errors_array**2, axis=0)),
         "max_abs_actuator_force_minus_ctrl": np.max(
@@ -303,7 +313,9 @@ def write_summary(
     ]
 
     for summary in summaries:
-        max_residual = np.max(np.abs(np.asarray(summary["allocation_residual"])), axis=0)
+        max_residual = np.max(
+            np.abs(np.asarray(summary["allocation_residual"])), axis=0
+        )
         lines += [
             f"Model: {summary['model']}",
             f"CSV: {summary['csv']}",
@@ -433,8 +445,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Simulate both quadrotor actuator models with gravity removed."
     )
-    parser.add_argument("--body", default="drone_1", help="Body frame to use. Default: drone_1.")
-    parser.add_argument("--thrust", type=float, default=5.0, help="Desired body Fz. Default: 5.0.")
+    parser.add_argument(
+        "--body", default="drone_1", help="Body frame to use. Default: drone_1."
+    )
+    parser.add_argument(
+        "--thrust", type=float, default=5.0, help="Desired body Fz. Default: 5.0."
+    )
     parser.add_argument(
         "--profile",
         choices=("sine", "constant"),
@@ -473,7 +489,9 @@ def parse_args() -> argparse.Namespace:
         default=(0.0, 1.57079632679, 0.78539816339),
         help="Sine torque phases in radians. Default: 0 pi/2 pi/4.",
     )
-    parser.add_argument("--duration", type=float, default=3.0, help="Simulation duration in seconds.")
+    parser.add_argument(
+        "--duration", type=float, default=3.0, help="Simulation duration in seconds."
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,

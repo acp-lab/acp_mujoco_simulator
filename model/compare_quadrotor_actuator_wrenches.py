@@ -80,7 +80,9 @@ def _body_frame_wrench_for_unit_actuator(
     gear = np.asarray(model.actuator_gear[actuator_id, :6], dtype=float)
     force_body = body_from_site @ gear[:3]
     torque_body_at_site = body_from_site @ gear[3:6]
-    site_position_body = body_from_world @ (data.site_xpos[site_id] - data.xpos[body_id])
+    site_position_body = body_from_world @ (
+        data.site_xpos[site_id] - data.xpos[body_id]
+    )
     torque_body = np.cross(site_position_body, force_body) + torque_body_at_site
     unit_wrench_body = np.concatenate((force_body, torque_body))
 
@@ -99,7 +101,9 @@ def _body_frame_wrench_for_unit_actuator(
     )
 
 
-def load_actuator_wrenches(model_path: Path, body_name: str) -> tuple[mujoco.MjModel, list[ActuatorWrench]]:
+def load_actuator_wrenches(
+    model_path: Path, body_name: str
+) -> tuple[mujoco.MjModel, list[ActuatorWrench]]:
     model = mujoco.MjModel.from_xml_path(str(model_path))
     data = mujoco.MjData(model)
     mujoco.mj_forward(model, data)
@@ -262,9 +266,7 @@ def main() -> None:
     model_paths = args.model if args.model else list(DEFAULT_MODELS)
     user_ctrl = None if args.ctrl is None else np.asarray(args.ctrl, dtype=float)
     desired = (
-        None
-        if args.no_desired_wrench
-        else np.asarray(args.desired_wrench, dtype=float)
+        None if args.no_desired_wrench else np.asarray(args.desired_wrench, dtype=float)
     )
 
     for model_path in model_paths:

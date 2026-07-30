@@ -2,56 +2,284 @@
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:macro name="quadrotor_visual_assets">
-    <mesh name="quadrotor_visual_mesh" file="raxl_assembly.obj" scale="0.001 0.001 0.001" />
+    <!-- The quadrotor is intentionally primitive-only; no external mesh asset is required. -->
   </xacro:macro>
 
-  <xacro:macro name="quadrotor_body" params="prefix pos euler:='0 0 0' mesh_pos:='-0.17 -0.16 -0.1' mesh_euler:='0 1.57 1.57079632679' primitive_alpha:='0' include_lidar:='false'">
+  <xacro:macro name="quadrotor_body" params="prefix pos euler:='0 0 0' mesh_pos:='-0.17 -0.16 -0.1' mesh_euler:='0 1.57 1.57079632679' primitive_alpha:='1.0' include_lidar:='false'">
     <body name="${prefix}" pos="${pos}" euler="${euler}">
       <joint name="${prefix}" type="free" damping="0.001" armature="0" pos="0 0 0"/>
-  
-      <!-- This is only to visual purposes -->
-      <!--<geom name="${prefix}_visual_mesh" type="mesh" mesh="quadrotor_visual_mesh"
-            pos="${mesh_pos}" euler="${mesh_euler}"
-            rgba="0.1 0.1 0.1 1" contype="0" conaffinity="0" density="0"/>-->
-      
-      <geom name="${prefix}_core" type="box" size="0.035 0.035 0.015" rgba="1.0 1.0 0.0 ${primitive_alpha}" mass="1.04"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <site name="${prefix}_imu" pos="0 0 0"/>
+
+      <!--
+        Preserve the original 1.24 kg rigid-body dynamics exactly. The
+        physical geoms below retain the previous collision and fluid-drag
+        envelopes, but no longer contribute mass because inertia is explicit.
+      -->
+      <inertial pos="0 0 0.0004838709677" mass="1.24"
+                diaginertia="0.0027338143976 0.0027336327812 0.0052991944907"/>
+
+      <!-- Hidden physical proxies: keep group 0 so other simulated LiDARs see the vehicle. -->
+      <geom name="${prefix}_core" type="box" size="0.035 0.035 0.015"
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_a00" type="box" pos=".09034 0.09034 0.0"
+            size="0.06364 0.01 0.0025" quat=".924 0 0 0.383"
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_a10" type="box" pos=".09034 -0.09034 0.0"
+            size="0.06364 0.01 0.0025" quat=".383 0 0 0.924"
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_a20" type="box" pos="-0.09034 -0.09034 0.0"
+            size="0.06364 0.01 0.0025" quat="-.383 0 0 0.924"
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_a30" type="box" pos="-.09034 0.09034 0.0"
+            size="0.06364 0.01 0.0025" quat=".924 0 0 -0.383"
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_thruster00" type="cylinder"
+            pos="-0.12728 -0.12728 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0."
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_thruster10" type="cylinder"
+            pos="0.12728 -0.12728 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0."
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_thruster20" type="cylinder"
+            pos="-0.12728 0.12728 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0."
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <geom name="${prefix}_thruster30" type="cylinder"
+            pos="0.12728 0.12728 0.01" size="0.03 0.0025"
+            quat="1.0 0.0 0.0 0."
+            rgba="0 0 0 0.001" density="0" group="0"
+            solref=".5e-4" solimp="0.9 0.99 1e-4"
+            fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+
+      <!-- Contact-free, zero-mass visual model (group 2 is ignored by the LiDAR raycaster). -->
+      <geom name="${prefix}_body_lower_plate_vis" type="box"
+            pos="0 0 -0.004" size="0.062 0.047 0.004"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_body_upper_plate_vis" type="box"
+            pos="0 0 0.008" size="0.056 0.041 0.004"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_battery_vis" type="box"
+            pos="-0.006 0 -0.016" size="0.043 0.031 0.008"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+
+      <!-- Cylindrical X-frame arms terminate at the unchanged 0.18 m rotor centers. -->
+      <geom name="${prefix}_arm_fl_vis" type="cylinder"
+            fromto="0.035 0.035 0.003 0.12728 0.12728 0.003" size="0.0075"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_arm_fr_vis" type="cylinder"
+            fromto="0.035 -0.035 0.003 0.12728 -0.12728 0.003" size="0.0075"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_arm_rr_vis" type="cylinder"
+            fromto="-0.035 -0.035 0.003 -0.12728 -0.12728 0.003" size="0.0075"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_arm_rl_vis" type="cylinder"
+            fromto="-0.035 0.035 0.003 -0.12728 0.12728 0.003" size="0.0075"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+
+      <!-- Motor cans and thin translucent cylinders representing spinning propellers. -->
+      <geom name="${prefix}_motor_1_vis" type="cylinder"
+            pos="-0.12728 -0.12728 0.011" size="0.018 0.012"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_motor_2_vis" type="cylinder"
+            pos="0.12728 -0.12728 0.011" size="0.018 0.012"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_motor_3_vis" type="cylinder"
+            pos="-0.12728 0.12728 0.011" size="0.018 0.012"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_motor_4_vis" type="cylinder"
+            pos="0.12728 0.12728 0.011" size="0.018 0.012"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_prop_1_vis" type="cylinder"
+            pos="-0.12728 -0.12728 0.03" size="0.055 0.0012"
+            rgba="0.12 0.58 0.95 0.32"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_prop_2_vis" type="cylinder"
+            pos="0.12728 -0.12728 0.03" size="0.055 0.0012"
+            rgba="0.95 0.48 0.08 0.32"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_prop_3_vis" type="cylinder"
+            pos="-0.12728 0.12728 0.03" size="0.055 0.0012"
+            rgba="0.95 0.48 0.08 0.32"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_prop_4_vis" type="cylinder"
+            pos="0.12728 0.12728 0.03" size="0.055 0.0012"
+            rgba="0.12 0.58 0.95 0.32"
+            density="0" contype="0" conaffinity="0" group="2"/>
+
+      <!-- Visual-only landing gear avoids changing low-altitude contact dynamics. -->
+      <geom name="${prefix}_landing_fl_vis" type="capsule"
+            fromto="0.04 0.03 -0.009 0.05 0.045 -0.044" size="0.003"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_landing_fr_vis" type="capsule"
+            fromto="0.04 -0.03 -0.009 0.05 -0.045 -0.044" size="0.003"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_landing_rl_vis" type="capsule"
+            fromto="-0.04 0.03 -0.009 -0.05 0.045 -0.044" size="0.003"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_landing_rr_vis" type="capsule"
+            fromto="-0.04 -0.03 -0.009 -0.05 -0.045 -0.044" size="0.003"
+            rgba="0.055 0.065 0.08 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_skid_left_vis" type="capsule"
+            fromto="0.05 -0.06 -0.047 0.05 0.06 -0.047" size="0.004"
+            rgba="0.025 0.025 0.03 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_skid_right_vis" type="capsule"
+            fromto="-0.05 -0.06 -0.047 -0.05 0.06 -0.047" size="0.004"
+            rgba="0.025 0.025 0.03 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_cable_mount_vis" type="cylinder"
+            pos="0 0 -0.037" size="0.009 0.003"
+            rgba="0.42 0.46 0.5 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+
+      <!-- Red front and green rear LEDs make body orientation easy to read. -->
+      <geom name="${prefix}_front_left_led_vis" type="sphere"
+            pos="0.143 0.12728 0.012" size="0.0035"
+            rgba="1 0.03 0.01 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_front_right_led_vis" type="sphere"
+            pos="0.143 -0.12728 0.012" size="0.0035"
+            rgba="1 0.03 0.01 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_rear_left_led_vis" type="sphere"
+            pos="-0.143 0.12728 0.012" size="0.0035"
+            rgba="0.02 1 0.12 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+      <geom name="${prefix}_rear_right_led_vis" type="sphere"
+            pos="-0.143 -0.12728 0.012" size="0.0035"
+            rgba="0.02 1 0.12 1"
+            density="0" contype="0" conaffinity="0" group="2"/>
+
+      <site name="${prefix}_imu" pos="0 0 0" size="0.001" rgba="0 0 0 0" group="5"/>
       <xacro:if value="${include_lidar}">
-        <geom name="${prefix}_lidar_visual" type="box" pos="0 0 0.03" size="0.025 0.018 0.012"
-              rgba="0.0 0.4 1.0 ${primitive_alpha}" contype="0" conaffinity="0" density="0"/>
-        <site name="${prefix}_lidar" type="sphere" pos="0 0 0.03" size="0.01" rgba="0 0.8 1 ${primitive_alpha}"/>
+        <!--
+          The LiDAR optical origin and dome center are 0.10 m above the IMU,
+          matching DLIO's baselink-to-LiDAR translation. The onboard-computer
+          enclosure and LiDAR base form a continuous stack from the vehicle's
+          upper plate to the dome. All of these geoms are contact-free and
+          massless, so they do not alter vehicle dynamics.
+        -->
+        <geom name="${prefix}_onboard_computer_case_vis" type="box"
+              pos="0 0 0.029" size="0.050 0.037 0.017"
+              rgba="0.055 0.065 0.08 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_onboard_computer_lid_vis" type="box"
+              pos="0 0 0.0445" size="0.052 0.039 0.0015"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <!--
+          Primitive approximation of the Livox Mid-360 housing. The opaque
+          base reaches the optical origin so it hides the lower half of the
+          ellipsoid, leaving a hemispherical blue dome above the collar.
+        -->
+        <geom name="${prefix}_lidar_base_vis" type="box"
+              pos="0 0 0.073" size="0.029 0.0325 0.027"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_collar_vis" type="cylinder"
+              pos="0 0 0.098" size="0.0305 0.003"
+              rgba="0.055 0.065 0.08 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_window_vis" type="ellipsoid"
+              pos="0 0 0.10" size="0.029 0.029 0.024"
+              rgba="0.025 0.24 0.42 0.92"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_label_vis" type="box"
+              pos="0.0305 0 0.066" size="0.0015 0.018 0.008"
+              rgba="0.055 0.065 0.08 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xp_1_vis" type="box"
+              pos="0.03075 -0.022 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xp_2_vis" type="box"
+              pos="0.03075 -0.0075 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xp_3_vis" type="box"
+              pos="0.03075 0.0075 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xp_4_vis" type="box"
+              pos="0.03075 0.022 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xn_1_vis" type="box"
+              pos="-0.03075 -0.022 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xn_2_vis" type="box"
+              pos="-0.03075 -0.0075 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xn_3_vis" type="box"
+              pos="-0.03075 0.0075 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <geom name="${prefix}_lidar_fin_xn_4_vis" type="box"
+              pos="-0.03075 0.022 0.073" size="0.00175 0.004 0.020"
+              rgba="0.42 0.46 0.5 1"
+              density="0" contype="0" conaffinity="0" group="2"/>
+        <site name="${prefix}_lidar" pos="0 0 0.10" size="0.001"
+              rgba="0 0 0 0" group="5"/>
       </xacro:if>
-      
-      <geom name="${prefix}_a00" type="box" pos=".09034 0.09034 0.0" size="0.06364 0.01 0.0025" quat=".924 0 0 0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a10" type="box" pos=".09034 -0.09034 0.0" size="0.06364 0.01 0.0025" quat=".383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a20" type="box" pos="-0.09034 -0.09034 0.0" size="0.06364 0.01 0.0025" quat="-.383 0 0 0.924" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_a30" type="box" pos="-.09034 0.09034 0.0" size="0.06364 0.01 0.0025" quat=".924 0 0 -0.383" rgba="1 0.5 0 ${primitive_alpha}" mass=".035"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
 
-      <geom name="${prefix}_thruster00" type="cylinder" pos="-0.12728 -0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster10" type="cylinder" pos="0.12728 -0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster20" type="cylinder" pos="-0.12728 0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
-      <geom name="${prefix}_thruster30" type="cylinder" pos="0.12728 0.12728 0.01" size="0.03 0.0025" quat="1.0 0.0 0.0 0." rgba="0.0 0.0 0.0 ${primitive_alpha}" mass=".015"
-            solref=".5e-4" solimp="0.9 0.99 1e-4" fluidshape="ellipsoid" fluidcoef="3.0 1.0 2.0 1.0 1.0"/>
+      <!-- Preserve all plugin-facing site names and poses. -->
+      <site name="${prefix}_thrust" type="box" pos="0 0 0"
+            size="0.035 0.035 0.015" rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rateX" type="box" pos="0 0 0"
+            size="0.035 0.035 0.015" rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rateY" type="box" pos="0 0 0"
+            size="0.035 0.035 0.015" rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rateZ" type="box" pos="0 0 0"
+            size="0.035 0.035 0.015" rgba="0 0 0 0" group="5"/>
 
-      <site name="${prefix}_thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
-      <site name="${prefix}_rateX" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
-      <site name="${prefix}_rateY" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
-      <site name="${prefix}_rateZ" type="box" pos="0 0 0" size="0.035 0.035 0.015" rgba="0 1 1 ${primitive_alpha}"/>
+      <site name="${prefix}_rotor1_site" type="sphere"
+            pos="-0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1"
+            rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rotor2_site" type="sphere"
+            pos="0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1"
+            rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rotor3_site" type="sphere"
+            pos="-0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1"
+            rgba="0 0 0 0" group="5"/>
+      <site name="${prefix}_rotor4_site" type="sphere"
+            pos="0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1"
+            rgba="0 0 0 0" group="5"/>
 
-      <site name="${prefix}_rotor1_site" type="sphere" pos="-0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor2_site" type="sphere" pos="0.12728 -0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor3_site" type="sphere" pos="-0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-      <site name="${prefix}_rotor4_site" type="sphere" pos="0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1" rgba="0 1 0 ${primitive_alpha}"/>
-
-      <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"/>
+      <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"
+            size="0.001" rgba="0 0 0 0" group="5"/>
     </body>
   </xacro:macro>
 

@@ -50,8 +50,8 @@
       <joint name="payload_x" type="slide" axis="1 0 0" damping="0.2"/>
       <joint name="payload_y" type="slide" axis="0 1 0" damping="0.2"/>
       <joint name="payload_z" type="slide" axis="0 0 1" damping="0.2"/>
-      <geom type="sphere" size="0.03" rgba="0 0 1 0.8" mass="0.1128"/>
-      <site name="payload_connection_site" pos="0.0 0.0 0.03"/>
+      <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="0.1128"/>
+      <site name="payload_connection_site" pos="0.0 0.0 0.035"/>
     </body>
 
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>

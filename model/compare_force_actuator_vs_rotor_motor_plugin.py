@@ -41,7 +41,9 @@ import numpy as np
 
 THIS_DIR = Path(__file__).resolve().parent
 WS_DIR = THIS_DIR.parents[2]
-DEFAULT_PLUGIN = WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+DEFAULT_PLUGIN = (
+    WS_DIR / "mujoco-3.10.0" / "bin" / "mujoco_plugin" / "libMujocoRosUtilsPlugin.so"
+)
 DEFAULT_OUTPUT_DIR = THIS_DIR / "rotor_motor_force_comparison_results"
 
 ROTOR_POSITIONS = np.asarray(
@@ -175,7 +177,9 @@ def load_plugin(plugin_library: Path) -> None:
     _PLUGIN_LOADED = True
 
 
-def make_models(args: argparse.Namespace) -> tuple[mujoco.MjModel, mujoco.MjData, mujoco.MjModel, mujoco.MjData]:
+def make_models(
+    args: argparse.Namespace,
+) -> tuple[mujoco.MjModel, mujoco.MjData, mujoco.MjModel, mujoco.MjData]:
     load_plugin(args.plugin_library)
     force_model = mujoco.MjModel.from_xml_string(force_model_xml(args))
     plugin_model = mujoco.MjModel.from_xml_string(plugin_model_xml(args))
@@ -192,11 +196,15 @@ def commanded_forces(time: float, args: argparse.Namespace) -> np.ndarray:
     return np.clip(thrust, 0.0, args.force_max)
 
 
-def free_joint_state(model: mujoco.MjModel, data: mujoco.MjData) -> tuple[np.ndarray, np.ndarray]:
+def free_joint_state(
+    model: mujoco.MjModel, data: mujoco.MjData
+) -> tuple[np.ndarray, np.ndarray]:
     joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "drone_1")
     qpos_adr = int(model.jnt_qposadr[joint_id])
     qvel_adr = int(model.jnt_dofadr[joint_id])
-    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[qvel_adr : qvel_adr + 6].copy()
+    return data.qpos[qpos_adr : qpos_adr + 7].copy(), data.qvel[
+        qvel_adr : qvel_adr + 6
+    ].copy()
 
 
 def activation_by_actuator(model: mujoco.MjModel, data: mujoco.MjData) -> np.ndarray:
@@ -325,7 +333,9 @@ def write_csv(output_dir: Path, data: dict[str, np.ndarray]) -> None:
                 row += data[prefix][k].tolist()
             row += data["force_wrench"][k].tolist()
             row += data["plugin_wrench"][k].tolist()
-            row += (data["plugin_actuator_force"][k] - data["force_actuator_force"][k]).tolist()
+            row += (
+                data["plugin_actuator_force"][k] - data["force_actuator_force"][k]
+            ).tolist()
             row += (data["plugin_wrench"][k] - data["force_wrench"][k]).tolist()
             row += (data["plugin_qpos"][k] - data["force_qpos"][k]).tolist()
             row += (data["plugin_qvel"][k] - data["force_qvel"][k]).tolist()
@@ -335,9 +345,25 @@ def write_csv(output_dir: Path, data: dict[str, np.ndarray]) -> None:
 def plot_motor_forces(output_dir: Path, data: dict[str, np.ndarray]) -> None:
     fig, axes = plt.subplots(4, 1, figsize=(10, 9), sharex=True)
     for i, axis in enumerate(axes):
-        axis.plot(data["time"], data["force_cmd"][:, i], "k--", linewidth=1.0, label="commanded force")
-        axis.plot(data["time"], data["force_actuator_force"][:, i], linewidth=1.0, label="force actuator")
-        axis.plot(data["time"], data["plugin_actuator_force"][:, i], linewidth=1.0, label="RotorMotor plugin")
+        axis.plot(
+            data["time"],
+            data["force_cmd"][:, i],
+            "k--",
+            linewidth=1.0,
+            label="commanded force",
+        )
+        axis.plot(
+            data["time"],
+            data["force_actuator_force"][:, i],
+            linewidth=1.0,
+            label="force actuator",
+        )
+        axis.plot(
+            data["time"],
+            data["plugin_actuator_force"][:, i],
+            linewidth=1.0,
+            label="RotorMotor plugin",
+        )
         axis.set_ylabel(f"f{i + 1} [N]")
         axis.grid(True, alpha=0.3)
         axis.legend(loc="upper right", fontsize=8)
@@ -352,8 +378,19 @@ def plot_motor_forces(output_dir: Path, data: dict[str, np.ndarray]) -> None:
 def plot_plugin_speed(output_dir: Path, data: dict[str, np.ndarray]) -> None:
     fig, axes = plt.subplots(4, 1, figsize=(10, 9), sharex=True)
     for i, axis in enumerate(axes):
-        axis.plot(data["time"], data["omega_cmd"][:, i], "k--", linewidth=1.0, label="omega_cmd")
-        axis.plot(data["time"], data["plugin_act_omega"][:, i], linewidth=1.0, label="plugin omega")
+        axis.plot(
+            data["time"],
+            data["omega_cmd"][:, i],
+            "k--",
+            linewidth=1.0,
+            label="omega_cmd",
+        )
+        axis.plot(
+            data["time"],
+            data["plugin_act_omega"][:, i],
+            linewidth=1.0,
+            label="plugin omega",
+        )
         axis.set_ylabel(f"omega{i + 1} [rad/s]")
         axis.grid(True, alpha=0.3)
         axis.legend(loc="upper right", fontsize=8)
@@ -368,8 +405,18 @@ def plot_plugin_speed(output_dir: Path, data: dict[str, np.ndarray]) -> None:
 def plot_wrenches(output_dir: Path, data: dict[str, np.ndarray]) -> None:
     fig, axes = plt.subplots(4, 1, figsize=(10, 9), sharex=True)
     for i, axis in enumerate(axes):
-        axis.plot(data["time"], data["force_wrench"][:, i], linewidth=1.0, label="force actuator")
-        axis.plot(data["time"], data["plugin_wrench"][:, i], linewidth=1.0, label="RotorMotor plugin")
+        axis.plot(
+            data["time"],
+            data["force_wrench"][:, i],
+            linewidth=1.0,
+            label="force actuator",
+        )
+        axis.plot(
+            data["time"],
+            data["plugin_wrench"][:, i],
+            linewidth=1.0,
+            label="RotorMotor plugin",
+        )
         axis.set_ylabel(WRENCH_LABELS[i])
         axis.grid(True, alpha=0.3)
         axis.legend(loc="upper right", fontsize=8)
@@ -406,8 +453,18 @@ def plot_errors(output_dir: Path, data: dict[str, np.ndarray]) -> None:
 def plot_position(output_dir: Path, data: dict[str, np.ndarray]) -> None:
     fig, axes = plt.subplots(3, 1, figsize=(10, 7), sharex=True)
     for i, label in enumerate(("x", "y", "z")):
-        axes[i].plot(data["time"], data["force_qpos"][:, i], linewidth=1.0, label="force actuator")
-        axes[i].plot(data["time"], data["plugin_qpos"][:, i], linewidth=1.0, label="RotorMotor plugin")
+        axes[i].plot(
+            data["time"],
+            data["force_qpos"][:, i],
+            linewidth=1.0,
+            label="force actuator",
+        )
+        axes[i].plot(
+            data["time"],
+            data["plugin_qpos"][:, i],
+            linewidth=1.0,
+            label="RotorMotor plugin",
+        )
         axes[i].set_ylabel(f"{label} [m]")
         axes[i].grid(True, alpha=0.3)
         axes[i].legend(loc="upper right", fontsize=8)
@@ -419,7 +476,9 @@ def plot_position(output_dir: Path, data: dict[str, np.ndarray]) -> None:
     plt.close(fig)
 
 
-def write_summary(output_dir: Path, args: argparse.Namespace, data: dict[str, np.ndarray]) -> None:
+def write_summary(
+    output_dir: Path, args: argparse.Namespace, data: dict[str, np.ndarray]
+) -> None:
     motor_error = data["plugin_actuator_force"] - data["force_actuator_force"]
     wrench_error = data["plugin_wrench"] - data["force_wrench"]
     qpos_error = data["plugin_qpos"] - data["force_qpos"]
@@ -473,7 +532,9 @@ def write_summary(output_dir: Path, args: argparse.Namespace, data: dict[str, np
     (output_dir / "summary.txt").write_text("\n".join(lines), encoding="utf-8")
 
 
-def save_results(output_dir: Path, args: argparse.Namespace, data: dict[str, np.ndarray]) -> None:
+def save_results(
+    output_dir: Path, args: argparse.Namespace, data: dict[str, np.ndarray]
+) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     write_csv(output_dir, data)
     plot_motor_forces(output_dir, data)
@@ -558,7 +619,9 @@ def main() -> None:
     motor_error = data["plugin_actuator_force"] - data["force_actuator_force"]
     wrench_error = data["plugin_wrench"] - data["force_wrench"]
     print(f"Saved comparison results to: {args.output_dir}")
-    print(f"kf * omega_max^2: {args.kf * args.omega_max * args.omega_max:.6f} N per motor")
+    print(
+        f"kf * omega_max^2: {args.kf * args.omega_max * args.omega_max:.6f} N per motor"
+    )
     print(
         "Max abs motor thrust error [N]: "
         f"{np.array2string(np.max(np.abs(motor_error), axis=0), precision=6)}"

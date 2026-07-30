@@ -135,7 +135,9 @@ class OsqpBoundedAllocator:
 def parse_vector(value: str, expected_size: int) -> np.ndarray:
     values = np.fromstring(value, sep=" ", dtype=float)
     if values.shape != (expected_size,):
-        raise ValueError(f"Expected {expected_size} values in {value!r}, got {values.shape[0]}")
+        raise ValueError(
+            f"Expected {expected_size} values in {value!r}, got {values.shape[0]}"
+        )
     return values
 
 
@@ -162,7 +164,9 @@ def load_rotor_configs(xacro_path: Path) -> list[RotorConfig]:
         gear = actuator.get("gear")
         ctrlrange = actuator.get("ctrlrange")
         if not name or not site or not gear or not ctrlrange:
-            raise ValueError(f"Incomplete rotor actuator definition: {ET.tostring(actuator, encoding='unicode')}")
+            raise ValueError(
+                f"Incomplete rotor actuator definition: {ET.tostring(actuator, encoding='unicode')}"
+            )
 
         kf = None
         for config in actuator.findall("./config"):
@@ -200,7 +204,9 @@ def allocation_matrix(rotors: list[RotorConfig]) -> np.ndarray:
         force = rotor.gear[:3]
         gear_torque = rotor.gear[3:]
         torque = np.cross(rotor.position, force) + gear_torque
-        columns.append(np.array([force[2], torque[0], torque[1], torque[2]], dtype=float))
+        columns.append(
+            np.array([force[2], torque[0], torque[1], torque[2]], dtype=float)
+        )
     return np.column_stack(columns)
 
 
@@ -214,7 +220,9 @@ def make_allocator(
 ):
     if backend == "osqp":
         try:
-            return OsqpBoundedAllocator(allocation, force_min, force_max, weights, regularization)
+            return OsqpBoundedAllocator(
+                allocation, force_min, force_max, weights, regularization
+            )
         except Exception as exc:
             print(f"OSQP unavailable ({exc}); using scipy bounded least squares.")
     elif backend != "scipy":
@@ -242,8 +250,16 @@ def save_plots(
 ) -> None:
     fig, axes = plt.subplots(4, 1, figsize=(11, 9), sharex=True)
     for i, axis in enumerate(axes):
-        axis.plot(time, desired[:, i], label=f"desired {WRENCH_NAMES[i]}", linewidth=2.0)
-        axis.plot(time, achieved[:, i], "--", label=f"allocated {WRENCH_NAMES[i]}", linewidth=1.5)
+        axis.plot(
+            time, desired[:, i], label=f"desired {WRENCH_NAMES[i]}", linewidth=2.0
+        )
+        axis.plot(
+            time,
+            achieved[:, i],
+            "--",
+            label=f"allocated {WRENCH_NAMES[i]}",
+            linewidth=1.5,
+        )
         axis.grid(True)
         axis.legend(loc="best")
     axes[-1].set_xlabel("time [s]")
@@ -313,7 +329,9 @@ def main() -> None:
     parser.add_argument("--dt", type=float, default=0.002)
     parser.add_argument("--allocator", choices=("osqp", "scipy"), default="osqp")
     parser.add_argument("--regularization", type=float, default=1.0e-8)
-    parser.add_argument("--weights", nargs=4, type=float, default=(1.0, 20.0, 20.0, 5.0))
+    parser.add_argument(
+        "--weights", nargs=4, type=float, default=(1.0, 20.0, 20.0, 5.0)
+    )
     args = parser.parse_args()
 
     output_dir = args.output_dir
@@ -328,7 +346,9 @@ def main() -> None:
     force_max = kf * omega_max * omega_max
     weights = np.array(args.weights, dtype=float)
 
-    allocator = make_allocator(allocation, force_min, force_max, weights, args.regularization, args.allocator)
+    allocator = make_allocator(
+        allocation, force_min, force_max, weights, args.regularization, args.allocator
+    )
 
     time = np.arange(0.0, args.duration + 0.5 * args.dt, args.dt)
     desired = desired_wrench_profile(time)
@@ -347,7 +367,15 @@ def main() -> None:
     omegas = np.sqrt(np.maximum(forces, 0.0) / kf[None, :])
     omega_squared_allocation = allocation @ np.diag(kf)
 
-    write_csv(output_dir / "quadrotor_acro_allocator_validation.csv", time, desired, achieved, forces, omegas, residual)
+    write_csv(
+        output_dir / "quadrotor_acro_allocator_validation.csv",
+        time,
+        desired,
+        achieved,
+        forces,
+        omegas,
+        residual,
+    )
     save_plots(output_dir, time, desired, achieved, forces, omegas, residual)
 
     summary = {
@@ -384,7 +412,10 @@ def main() -> None:
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     np.savetxt(output_dir / "allocation_matrix_force_to_wrench.txt", allocation)
-    np.savetxt(output_dir / "allocation_matrix_omega_squared_to_wrench.txt", omega_squared_allocation)
+    np.savetxt(
+        output_dir / "allocation_matrix_omega_squared_to_wrench.txt",
+        omega_squared_allocation,
+    )
 
     print(f"Loaded: {args.xacro}")
     print(f"Saved results in: {output_dir}")
@@ -394,7 +425,9 @@ def main() -> None:
     print(f"Rank: {summary['rank']}")
     print(f"Condition number: {summary['condition_number']:.6g}")
     print(f"Per-motor force max [N]: {force_max}")
-    print(f"Observed motor force range [N]: min {np.min(forces, axis=0)}, max {np.max(forces, axis=0)}")
+    print(
+        f"Observed motor force range [N]: min {np.min(forces, axis=0)}, max {np.max(forces, axis=0)}"
+    )
     print(f"Observed motor omega max [rad/s]: {np.max(omegas, axis=0)}")
     print(f"Max abs residual [Fz, Mx, My, Mz]: {np.max(np.abs(residual), axis=0)}")
 
