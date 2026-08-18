@@ -20,6 +20,12 @@
   <xacro:arg name="tension_hz" default="100"/>
   <xacro:arg name="clock_hz" default="400"/>
   <xacro:arg name="lidar_hz" default="10"/>
+  <xacro:arg name="imu_gyro_noise_density" default="2.5e-3"/>
+  <xacro:arg name="imu_accel_noise_density" default="1.8e-3"/>
+  <xacro:arg name="imu_gyro_bias_rw" default="0.0"/>
+  <xacro:arg name="imu_accel_bias_rw" default="0.0"/>
+  <xacro:arg name="acro_gyro_noise_density" default="2.5e-3"/>
+  <xacro:arg name="acro_gyro_bias_rw" default="0.0"/>
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
 
@@ -111,7 +117,11 @@
   </worldbody>
 
   <actuator>
-    <xacro:quadrotor_actuators prefix="$(arg quad_name)" control_hz="$(arg control_hz)" />
+    <xacro:quadrotor_actuators
+        prefix="$(arg quad_name)"
+        control_hz="$(arg control_hz)"
+        acro_gyro_noise_density="$(arg acro_gyro_noise_density)"
+        acro_gyro_bias_rw="$(arg acro_gyro_bias_rw)" />
   </actuator>
 
   <tendon>
@@ -123,7 +133,14 @@
 
   <sensor>
     <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
-    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)" odom_hz="$(arg odom_hz)" imu_hz="$(arg imu_hz)" />
+    <xacro:quadrotor_sensor_plugins
+        prefix="$(arg quad_name)"
+        odom_hz="$(arg odom_hz)"
+        imu_hz="$(arg imu_hz)"
+        imu_gyro_noise_density="$(arg imu_gyro_noise_density)"
+        imu_accel_noise_density="$(arg imu_accel_noise_density)"
+        imu_gyro_bias_rw="$(arg imu_gyro_bias_rw)"
+        imu_accel_bias_rw="$(arg imu_accel_bias_rw)" />
     <xacro:quadrotor_lidar_plugin prefix="$(arg quad_name)" lidar_hz="$(arg lidar_hz)" />
     <plugin name="payload_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="payload">
       <config key="publish_rate" value="$(arg payload_odom_hz)"/>

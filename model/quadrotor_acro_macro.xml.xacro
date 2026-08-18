@@ -284,12 +284,15 @@
   </xacro:macro>
 
   <xacro:macro name="quadrotor_physical_sensors" params="prefix">
-    <accelerometer name="${prefix}_accel" site="${prefix}_imu" />
-    <gyro name="${prefix}_gyro" site="${prefix}_imu" />
+    <!-- Keep MuJoCo's native sensor noise at zero. Measurement noise is added
+         only by ImuPublisher so that one model controls it unambiguously. -->
+    <accelerometer name="${prefix}_accel" site="${prefix}_imu" noise="0.0" />
+    <gyro name="${prefix}_gyro" site="${prefix}_imu" noise="0.0" />
   </xacro:macro>
 
 
-  <xacro:macro name="quadrotor_actuators" params="prefix control_hz:=240">
+  <xacro:macro name="quadrotor_actuators"
+               params="prefix control_hz:=240 acro_gyro_noise_density:=2.5e-3 acro_gyro_bias_rw:=0.0">
     <plugin site="${prefix}_rotor1_site" name="${prefix}_rotor1"
             plugin="MujocoRosUtils::RotorMotor"
             actdim="1"
@@ -341,10 +344,17 @@
       <config key="allocation_weight_tz" value="5.0"/>
       <config key="control_hz"   value="${control_hz}"/>
       <config key="body_name"    value="${prefix}"/>
+      <config key="gyro_noise_density" value="${acro_gyro_noise_density}"/>
+      <config key="gyro_bias_rw" value="${acro_gyro_bias_rw}"/>
+      <config key="gyro_bias_init_x" value="0.0"/>
+      <config key="gyro_bias_init_y" value="0.0"/>
+      <config key="gyro_bias_init_z" value="0.0"/>
+      <config key="gyro_range" value="0.0"/>
     </plugin>
   </xacro:macro>
 
-  <xacro:macro name="quadrotor_sensor_plugins" params="prefix odom_hz:=240 imu_hz:=350">
+  <xacro:macro name="quadrotor_sensor_plugins"
+               params="prefix odom_hz:=240 imu_hz:=350 imu_gyro_noise_density:=2.5e-3 imu_accel_noise_density:=1.8e-3 imu_gyro_bias_rw:=0.0 imu_accel_bias_rw:=0.0">
     <plugin name="${prefix}_odom" plugin="MujocoRosUtils::OdometryPublisher" objtype="xbody" objname="${prefix}">
       <config key="publish_rate" value="${odom_hz}"/>
     </plugin>
@@ -353,6 +363,18 @@
       <config key="accel_sensor" value="${prefix}_accel"/>
       <config key="gyro_sensor"  value="${prefix}_gyro"/>
       <config key="publish_rate" value="${imu_hz}"/>
+      <config key="gyro_noise_density" value="${imu_gyro_noise_density}"/>
+      <config key="gyro_bias_rw" value="${imu_gyro_bias_rw}"/>
+      <config key="gyro_bias_init_x" value="0.0"/>
+      <config key="gyro_bias_init_y" value="0.0"/>
+      <config key="gyro_bias_init_z" value="0.0"/>
+      <config key="gyro_range" value="0.0"/>
+      <config key="accel_noise_density" value="${imu_accel_noise_density}"/>
+      <config key="accel_bias_rw" value="${imu_accel_bias_rw}"/>
+      <config key="accel_bias_init_x" value="0.0"/>
+      <config key="accel_bias_init_y" value="0.0"/>
+      <config key="accel_bias_init_z" value="0.0"/>
+      <config key="accel_range" value="0.0"/>
     </plugin>
   </xacro:macro>
 
