@@ -182,6 +182,11 @@
             density="0" contype="0" conaffinity="0" group="2"/>
 
       <site name="${prefix}_imu" pos="0 0 0" size="0.001" rgba="0 0 0 0" group="5"/>
+
+       <camera name="${prefix}_camera"
+            pos="0.03 0 -0.04"
+            xyaxes="0 -1 0 1 0 0"
+            fovy="75"/>
       <xacro:if value="${include_lidar}">
         <!--
           The LiDAR optical origin and dome center are 0.10 m above the IMU,

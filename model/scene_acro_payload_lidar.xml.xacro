@@ -92,17 +92,17 @@
 
 
     <body name="payload" pos="-0.7 0.0 0.02">
-      <joint name="payload_x" type="slide" axis="1 0 0" damping="0.2"/>
-      <joint name="payload_y" type="slide" axis="0 1 0" damping="0.2"/>
-      <joint name="payload_z" type="slide" axis="0 0 1" damping="0.2"/>
+      <joint name="payload_x" type="slide" axis="1 0 0" damping="0.06"/>
+      <joint name="payload_y" type="slide" axis="0 1 0" damping="0.06"/>
+      <joint name="payload_z" type="slide" axis="0 0 1" damping="0.06"/>
       <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="0.2"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
     </body>
 
     <body name="payload_2" pos="-0.7 0.7 0.02">
-      <joint name="payload_2_x" type="slide" axis="1 0 0" damping="0.2"/>
-      <joint name="payload_2_y" type="slide" axis="0 1 0" damping="0.2"/>
-      <joint name="payload_2_z" type="slide" axis="0 0 1" damping="0.2"/>
+      <joint name="payload_2_x" type="slide" axis="1 0 0" damping="0.06"/>
+      <joint name="payload_2_y" type="slide" axis="0 1 0" damping="0.06"/>
+      <joint name="payload_2_z" type="slide" axis="0 0 1" damping="0.06"/>
       <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="0.2"/>
       <site name="payload_connection_site_2" pos="0.0 0.0 0.0"/>
     </body>
