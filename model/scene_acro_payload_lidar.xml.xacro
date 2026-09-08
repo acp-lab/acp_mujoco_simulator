@@ -73,7 +73,6 @@
     <geom name="ceiling" type="box" pos="2.5 0 3.0" size="5.55 2.05 0.04" rgba="0.7 0.7 0.75 0.35"/>
 
     <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
-    <geom name="box_green" type="box" pos="4 -1 0.5" size="0.2 0.2 0.5" material="mat_green" />
     <geom name="box_blue" type="box" pos="6 1 0.5" size="0.2 0.2 0.5" material="mat_blue" />
     <geom name="pillar_cyan" type="cylinder" pos="1.2 -1.25 0.75" size="0.12 0.75" material="mat_cyan" />
     <geom name="pillar_yellow" type="cylinder" pos="5.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
