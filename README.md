@@ -232,3 +232,52 @@ ros2 run mav_manager mav_manager_service_exec
 ```bash
 ros2 run mav_manager_test main_test
 ```
+
+### Payload initial pose, physical parameters, and headless duration
+
+The payload simulation launch accepts the quadrotor's initial position and
+orientation, the payload's initial position, physical parameters, and an optional
+headless duration:
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
+  quad_name:=eagle11 headless:=true duration_s:=20.0 \
+  init_roll:=0.0 init_pitch:=0.0 \
+  payload_x:=-0.7 payload_y:=0.0 payload_z:=0.02
+```
+
+| Argument | Default | Meaning |
+|---|---|---|
+| `init_x`, `init_y`, `init_z` | `0.0`, `0.0`, `0.03` | Quadrotor body-origin position in world coordinates, metres |
+| `init_roll`, `init_pitch`, `init_yaw` | `0.0`, `0.0`, `0.0` | Initial quadrotor Euler angles, radians |
+| `payload_x`, `payload_y`, `payload_z` | `-0.7`, `0.0`, `0.02` | Initial payload position in world coordinates, metres |
+| `quadrotor_mass` | `1.24` | Quadrotor mass, kg |
+| `quadrotor_ixx` | `0.0027338143976` | Quadrotor inertia about the body x-axis through its CoM, kg m² |
+| `quadrotor_iyy` | `0.0027336327812` | Quadrotor inertia about the body y-axis through its CoM, kg m² |
+| `quadrotor_izz` | `0.0052991944907` | Quadrotor inertia about the body z-axis through its CoM, kg m² |
+| `payload_mass` | `0.2` | Mass of the cable-connected payload, kg |
+| `cable_length` | `0.95` | Maximum tendon length between attachment sites, metres |
+| `duration_s` | `0.0` | Headless simulation duration in simulated seconds; zero runs until stopped |
+
+Pose and physical arguments apply to both graphical and headless runs. `duration_s` applies
+only with `headless:=true` and must be finite and nonnegative. The simulator
+stops at the first completed physics step reaching the requested duration, so
+the endpoint has physics-timestep resolution. Existing launches that omit
+`duration_s` continue running until stopped.
+
+For example, to change the plant parameters:
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
+  quad_name:=eagle11 headless:=true duration_s:=20.0 \
+  quadrotor_mass:=1.5 \
+  quadrotor_ixx:=0.0035 quadrotor_iyy:=0.0035 quadrotor_izz:=0.006 \
+  payload_mass:=0.3 cable_length:=1.2
+```
+
+The inertia remains diagonal: `diag(Ixx, Iyy, Izz)`. Mass and inertia are
+independent inputs; changing `quadrotor_mass` does not rescale the inertia.
+These arguments configure the MuJoCo plant. Controller model parameters remain
+configured separately, so use matching values there for nominal-model experiments.
+Changing `cable_length` sets the tendon limit; initial positions remain the values
+supplied through the pose arguments.

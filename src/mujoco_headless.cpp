@@ -2,6 +2,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <chrono>
+#include <cmath>
 #include <csignal>
 #include <filesystem>
 #include <iostream>
@@ -106,8 +107,17 @@ int main(int argc, char **argv) {
 
   std::string model_path;
   std::string mujoco_plugin_dir;
+  double duration_s = 0.0; // Zero keeps the simulation running until stopped.
   DeclareAndReadParam(node, "model_path", model_path, "%s");
   DeclareAndReadParam(node, "mujoco_plugin_dir", mujoco_plugin_dir, "%s");
+  DeclareAndReadParam(node, "duration_s", duration_s, "%.6f");
+
+  if (!std::isfinite(duration_s) || duration_s < 0.0) {
+    RCLCPP_ERROR(node->get_logger(),
+                 "duration_s must be finite and nonnegative (0 = unlimited).");
+    rclcpp::shutdown();
+    return 1;
+  }
 
   const auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
   if (non_ros_args.size() == 2) {
@@ -154,12 +164,17 @@ int main(int argc, char **argv) {
   using clock = std::chrono::steady_clock;
   auto next_tick = clock::now();
   const auto step_duration = std::chrono::duration<double>(model->opt.timestep);
+  const double start_time = data->time;
 
-  while (true) {
+  while (rclcpp::ok() &&
+         (duration_s == 0.0 || data->time - start_time < duration_s)) {
     mj_step(model.get(), data.get());
     next_tick += std::chrono::duration_cast<clock::duration>(step_duration);
     std::this_thread::sleep_until(next_tick);
   }
 
+  RCLCPP_INFO(node->get_logger(), "Simulation finished after %.6f simulated seconds.",
+              data->time - start_time);
+  rclcpp::shutdown();
   return 0;
 }

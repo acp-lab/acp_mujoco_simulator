@@ -8,6 +8,15 @@
   <xacro:arg name="init_roll"  default="0.0"/>
   <xacro:arg name="init_pitch" default="0.0"/>
   <xacro:arg name="init_yaw"   default="0.0"/>
+  <xacro:arg name="payload_x" default="-0.7"/>
+  <xacro:arg name="payload_y" default="0.0"/>
+  <xacro:arg name="payload_z" default="0.02"/>
+  <xacro:arg name="quadrotor_mass" default="1.24"/>
+  <xacro:arg name="quadrotor_ixx" default="0.0027338143976"/>
+  <xacro:arg name="quadrotor_iyy" default="0.0027336327812"/>
+  <xacro:arg name="quadrotor_izz" default="0.0052991944907"/>
+  <xacro:arg name="payload_mass" default="0.2"/>
+  <xacro:arg name="cable_length" default="0.95"/>
   <xacro:arg name="meshdir" default="."/>
   <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
@@ -77,16 +86,20 @@
     <xacro:quadrotor_body prefix="$(arg quad_name)"
                           pos="$(arg init_x) $(arg init_y) $(arg init_z)"
                           euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)"
+                          mass="$(arg quadrotor_mass)"
+                          ixx="$(arg quadrotor_ixx)"
+                          iyy="$(arg quadrotor_iyy)"
+                          izz="$(arg quadrotor_izz)"
                           mesh_pos="$(arg mesh_pos)"
                           mesh_euler="$(arg mesh_euler)"
                           primitive_alpha="$(arg primitive_alpha)" />
 
 
-    <body name="payload" pos="-0.7 0.0 0.02">
+    <body name="payload" pos="$(arg payload_x) $(arg payload_y) $(arg payload_z)">
       <joint name="payload_x" type="slide" axis="1 0 0" damping="0.06"/>
       <joint name="payload_y" type="slide" axis="0 1 0" damping="0.06"/>
       <joint name="payload_z" type="slide" axis="0 0 1" damping="0.06"/>
-      <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="0.2"/>
+      <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="$(arg payload_mass)"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
     </body>
 
@@ -117,7 +130,7 @@
   </actuator>
 
   <tendon>
-    <spatial name="rope0" limited="true" range="0 0.95" width=".0005">
+    <spatial name="rope0" limited="true" range="0 $(arg cable_length)" width=".0005">
       <site site="$(arg quad_name)_payload_site"/>
       <site site="payload_connection_site"/>
     </spatial>
