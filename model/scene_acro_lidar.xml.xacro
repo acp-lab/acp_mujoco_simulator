@@ -13,6 +13,7 @@
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
   <xacro:arg name="primitive_alpha" default="0.9"/>
   <xacro:arg name="simulation_timestep" default="0.0025"/>
+  <xacro:arg name="enable_environment_contacts" default="true"/>
   <xacro:arg name="imu_hz" default="350"/>
   <xacro:arg name="odom_hz" default="240"/>
   <xacro:arg name="control_hz" default="240"/>
@@ -32,6 +33,15 @@
   <compiler angle="radian" meshdir="$(arg meshdir)"/>
 
   <option timestep="$(arg simulation_timestep)" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+
+  <!-- Only static environment geometry uses this class; cable limits stay active. -->
+  <default>
+    <default class="environment">
+      <xacro:unless value="$(arg enable_environment_contacts)">
+        <geom contype="0" conaffinity="0"/>
+      </xacro:unless>
+    </default>
+  </default>
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -69,18 +79,18 @@
     </plugin>
 
     <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
-    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
-    <geom name="ceiling" type="box" pos="2.5 0 3.0" size="5.55 2.05 0.04" rgba="0.7 0.7 0.75 0.35"/>
+    <geom class="environment" name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <geom class="environment" name="ceiling" type="box" pos="2.5 0 3.0" size="5.55 2.05 0.04" rgba="0.7 0.7 0.75 0.35"/>
 
-    <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
-    <geom name="box_green" type="box" pos="4 -1 0.5" size="0.2 0.2 0.5" material="mat_green" />
-    <geom name="box_blue" type="box" pos="6 1 0.5" size="0.2 0.2 0.5" material="mat_blue" />
-    <geom name="pillar_cyan" type="cylinder" pos="1.2 -1.25 0.75" size="0.12 0.75" material="mat_cyan" />
-    <geom name="pillar_yellow" type="cylinder" pos="5.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
-    <geom name="tall_slab_left" type="box" pos="0.6 1.35 0.8" size="0.08 0.35 0.8" material="mat_gray" />
-    <geom name="low_crate_back" type="box" pos="6.7 -0.8 0.25" size="0.28 0.32 0.25" material="mat_cyan" />
-    <geom name="overhead_beam" type="box" pos="3.6 1.1 1.8" size="0.9 0.08 0.08" material="mat_gray" />
-    <geom name="offset_panel" type="box" pos="7.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
+    <geom class="environment" name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
+    <geom class="environment" name="box_green" type="box" pos="4 -1 0.5" size="0.2 0.2 0.5" material="mat_green" />
+    <geom class="environment" name="box_blue" type="box" pos="6 1 0.5" size="0.2 0.2 0.5" material="mat_blue" />
+    <geom class="environment" name="pillar_cyan" type="cylinder" pos="1.2 -1.25 0.75" size="0.12 0.75" material="mat_cyan" />
+    <geom class="environment" name="pillar_yellow" type="cylinder" pos="5.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
+    <geom class="environment" name="tall_slab_left" type="box" pos="0.6 1.35 0.8" size="0.08 0.35 0.8" material="mat_gray" />
+    <geom class="environment" name="low_crate_back" type="box" pos="6.7 -0.8 0.25" size="0.28 0.32 0.25" material="mat_cyan" />
+    <geom class="environment" name="overhead_beam" type="box" pos="3.6 1.1 1.8" size="0.9 0.08 0.08" material="mat_gray" />
+    <geom class="environment" name="offset_panel" type="box" pos="7.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
 
     <xacro:quadrotor_body prefix="$(arg quad_name)"
                           pos="$(arg init_x) $(arg init_y) $(arg init_z)"
@@ -106,10 +116,10 @@
       <site name="payload_connection_site_2" pos="0.0 0.0 0.0"/>
     </body>
 
-    <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
 
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>

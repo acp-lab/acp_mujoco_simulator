@@ -13,6 +13,7 @@
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
   <xacro:arg name="primitive_alpha" default="0.9"/>
   <xacro:arg name="simulation_timestep" default="0.0025"/>
+  <xacro:arg name="enable_environment_contacts" default="true"/>
   <xacro:arg name="imu_hz" default="350"/>
   <xacro:arg name="odom_hz" default="240"/>
   <xacro:arg name="control_hz" default="240"/>
@@ -33,6 +34,15 @@
   <compiler angle="radian" meshdir="$(arg meshdir)"/>
 
   <option timestep="$(arg simulation_timestep)" gravity="0 0 -9.81" density="1.225" viscosity="1.8e-05" integrator="RK4" />
+
+  <!-- Only static environment geometry uses this class; cable limits stay active. -->
+  <default>
+    <default class="environment">
+      <xacro:unless value="$(arg enable_environment_contacts)">
+        <geom contype="0" conaffinity="0"/>
+      </xacro:unless>
+    </default>
+  </default>
 
   <extension>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
@@ -68,12 +78,12 @@
     </plugin>
 
     <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
-    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <geom class="environment" name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
 
 
-    <geom name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
-    <geom name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
-    <geom name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
+    <geom class="environment" name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
+    <geom class="environment" name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
+    <geom class="environment" name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
 
     <xacro:quadrotor_body prefix="$(arg quad_name)"
                           pos="$(arg init_x) $(arg init_y) $(arg init_z)"
@@ -99,10 +109,10 @@
       <site name="payload_connection_site_2" pos="0.0 0.0 0.0"/>
     </body>
 
-    <geom name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <geom class="environment" name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
 
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>

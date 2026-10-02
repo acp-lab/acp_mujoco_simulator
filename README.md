@@ -13,6 +13,32 @@ payload_transportation_ws
 
 ---
 
+## Optional environment contacts in acro scenes
+
+The acro launch files in `acp_autonomy` expose
+`enable_environment_contacts:=true|false` (default `true`). Setting it to `false`
+disables collisions with static environment geometry: floor, walls, ceiling,
+boxes, pillars, and gates. Geometry remains visible; bodies can pass through it.
+Contacts between moving bodies and tendon limits used for cables are unchanged.
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
+  quad_name:=eagle11 init_z:=1.5 payload_x:=0.0 payload_z:=0.5 \
+  enable_environment_contacts:=false
+```
+
+The option is passed to the scene Xacro, which sets both `contype` and
+`conaffinity` to zero for the `environment` geometry class. New static obstacles
+should use `class="environment"` to follow this setting. Gates have explicit
+contact masks, so the gate scene also sets its gate mask to zero when the option
+is false. When true, the separate `gates_collide` option keeps its existing
+meaning. No global contact or constraint disable flag is used.
+
+This applies to the single quadrotor acro, payload, gate, and LiDAR scenes and
+the multiple quadrotor point-mass scenes. It works with both the viewer and
+headless executable because both load the generated MJCF model. No C++ parameter
+or headless executable change is needed.
+
 ## 1. Create and Configure the Workspace
 
 Create the workspace directory (the location is up to you) and export it as an environment variable.
