@@ -99,7 +99,7 @@
       <joint name="payload_x" type="slide" axis="1 0 0" damping="0.06"/>
       <joint name="payload_y" type="slide" axis="0 1 0" damping="0.06"/>
       <joint name="payload_z" type="slide" axis="0 0 1" damping="0.06"/>
-      <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="$(arg payload_mass)"/>
+      <geom type="sphere" size="0.035" rgba="1 1 1 0.5" mass="$(arg payload_mass)"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
     </body>
 
