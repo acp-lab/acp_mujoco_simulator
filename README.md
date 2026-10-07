@@ -29,15 +29,56 @@ ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.la
 
 The option is passed to the scene Xacro, which sets both `contype` and
 `conaffinity` to zero for the `environment` geometry class. New static obstacles
-should use `class="environment"` to follow this setting. Gates have explicit
-contact masks, so the gate scene also sets its gate mask to zero when the option
-is false. When true, the separate `gates_collide` option keeps its existing
-meaning. No global contact or constraint disable flag is used.
+should use `class="environment"` to follow this setting. The older dedicated
+gate scene has explicit contact masks, so it also sets its gate mask to zero
+when the option is false. When true, its separate `gates_collide` option keeps
+its existing meaning. No global contact or constraint disable flag is used.
 
 This applies to the single quadrotor acro, payload, gate, and LiDAR scenes and
 the multiple quadrotor point-mass scenes. It works with both the viewer and
 headless executable because both load the generated MJCF model. No C++ parameter
 or headless executable change is needed.
+
+## Optional payload gate
+
+The non-LiDAR payload launch has `enable_gate:=false` by default. Enable it with:
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
+  quad_name:=eagle11 \
+  init_x:=0.0 init_y:=0.0 init_z:=1.5 \
+  payload_x:=0.0 payload_y:=0.0 payload_z:=0.5 \
+  enable_gate:=true
+```
+
+The simulator gate is centered at x = 1.75 m, 0.25 m before the planner's
+gate at x = 2.0 m, to provide additional clearance after passage before recapture.
+The simulator opening radius is 0.40 m; the planner currently uses 0.60 m.
+
+| Launch argument | Default | Meaning |
+| --- | --- | --- |
+| `gate_x`, `gate_y`, `gate_z` | `1.75`, `0.0`, `2.0` | Opening center in world coordinates, metres |
+| `gate_radius` | `0.4` | Clear opening radius, metres (0.8 m diameter) |
+| `gate_thickness` | `0.1` | Full gate depth along the world x axis, metres |
+
+These are launch defaults, not values read automatically from the planner.
+If you change the planner's gate, pass the corresponding values here too.
+
+The orange ring is static, with its opening in the world yz plane. It uses
+64 capsule segments with a chord correction to preserve the clear radius.
+It represents a finite, rounded ring; the planner uses a wall slab with a
+circular opening. The planner's body radii and clearance margins constrain
+body centers and do not shrink the simulator's opening.
+
+The ring follows `enable_environment_contacts`: contacts are enabled by
+default; setting it to `false` keeps the gate visible without collisions.
+`enable_gate:=false` removes the ring entirely. After adding this macro to an
+existing workspace, install it with:
+
+```bash
+colcon build --packages-select acp_mujoco_simulator acp_autonomy --symlink-install
+source install/setup.bash
+```
 
 ## 1. Create and Configure the Workspace
 

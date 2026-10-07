@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- A capsule ring in the local yz plane; its normal is the world x axis. -->
+  <xacro:macro name="circular_gate_segments"
+               params="name centerline_radius tube_radius material segments index:=0">
+    <xacro:if value="${index &lt; segments}">
+      <xacro:property name="angle_start" value="${2 * pi * index / segments}"/>
+      <xacro:property name="angle_end" value="${2 * pi * (index + 1) / segments}"/>
+      <geom class="environment" name="${name}_segment_${index}" type="capsule"
+            fromto="0 ${centerline_radius * cos(angle_start)} ${centerline_radius * sin(angle_start)}
+                    0 ${centerline_radius * cos(angle_end)} ${centerline_radius * sin(angle_end)}"
+            size="${tube_radius}" material="${material}"/>
+      <xacro:circular_gate_segments name="${name}"
+          centerline_radius="${centerline_radius}" tube_radius="${tube_radius}"
+          material="${material}" segments="${segments}" index="${index + 1}"/>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- opening_radius is the CLEAR aperture radius, not the tube centerline.
+       thickness is the FULL gate depth along x, not the tube radius.
+       The chord correction keeps every segment outside the clear aperture. -->
+  <xacro:macro name="circular_gate" params="name pos opening_radius thickness material">
+    <xacro:property name="segments" value="${64}"/>
+    <xacro:property name="tube_radius" value="${float(thickness) / 2}"/>
+    <xacro:property name="centerline_radius"
+                    value="${(float(opening_radius) + tube_radius) / cos(pi / segments)}"/>
+    <body name="${name}" pos="${pos}">
+      <xacro:circular_gate_segments name="${name}"
+          centerline_radius="${centerline_radius}" tube_radius="${tube_radius}"
+          material="${material}" segments="${segments}"/>
+    </body>
+  </xacro:macro>
+</mujoco>
