@@ -6,7 +6,7 @@
   </xacro:macro>
 
   <xacro:macro name="quadrotor_body" params="prefix pos euler:='0 0 0' mesh_pos:='-0.17 -0.16 -0.1' mesh_euler:='0 1.57 1.57079632679' primitive_alpha:='1.0' include_lidar:='false'
-                      mass:=1.24 ixx:=0.0027338143976 iyy:=0.0027336327812 izz:=0.0052991944907">
+                      mass:=1.24 ixx:=0.0027338143976 iyy:=0.0027336327812 izz:=0.0052991944907 payload_site_pos:='0.0 0.0 -0.05'">
     <body name="${prefix}" pos="${pos}" euler="${euler}">
       <joint name="${prefix}" type="free" damping="0.001" armature="0" pos="0 0 0"/>
 
@@ -284,7 +284,8 @@
             pos="0.12728 0.12728 0.0" size="0.005" zaxis="0 0 1"
             rgba="0 0 0 0" group="5"/>
 
-      <site name="${prefix}_payload_site" pos="0.0 0.0 -0.05"
+      <!-- Each scene can choose its cable attachment relative to the body origin. -->
+      <site name="${prefix}_payload_site" pos="${payload_site_pos}"
             size="0.001" rgba="0 0 0 0" group="5"/>
     </body>
   </xacro:macro>

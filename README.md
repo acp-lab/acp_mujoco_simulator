@@ -51,18 +51,33 @@ ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.la
   enable_gate:=true
 ```
 
-The simulator gate is centered at x = 1.75 m, 0.25 m before the planner's
-gate at x = 2.0 m, to provide additional clearance after passage before recapture.
-The simulator opening radius is 0.40 m; the planner currently uses 0.60 m.
+The simulator gate is centered at (2.0, 0.0, 2.0) m, matching the planner's
+gate position in world coordinates.
+Its clear opening radius is 0.40 m, also matching the planner.
 
 | Launch argument | Default | Meaning |
 | --- | --- | --- |
-| `gate_x`, `gate_y`, `gate_z` | `1.75`, `0.0`, `2.0` | Opening center in world coordinates, metres |
+| `gate_x`, `gate_y`, `gate_z` | `2.0`, `0.0`, `2.0` | Opening center in world coordinates, metres |
 | `gate_radius` | `0.4` | Clear opening radius, metres (0.8 m diameter) |
 | `gate_thickness` | `0.1` | Full gate depth along the world x axis, metres |
+| `enable_second_gate` | `false` | Add a second gate independently of `enable_gate` |
+| `second_gate_x`, `second_gate_y`, `second_gate_z` | `3.5`, `0.0`, `2.0` | Second opening center in world coordinates, metres |
+| `second_gate_radius` | `0.4` | Second clear opening radius, metres |
+| `second_gate_thickness` | `0.1` | Second full gate depth along world x, metres |
 
 These are launch defaults, not values read automatically from the planner.
 If you change the planner's gate, pass the corresponding values here too.
+
+For the `multiple_gates_x3p5.csv` trajectory, enable both gates. They are centered at
+(2.0, 0.0, 2.0) m and (3.5, 0.0, 2.0) m:
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
+  quad_name:=eagle11 \
+  init_x:=0.0 init_y:=0.0 init_z:=1.5 \
+  payload_x:=0.0 payload_y:=0.0 payload_z:=0.5 \
+  enable_gate:=true enable_second_gate:=true
+```
 
 The orange ring is static, with its opening in the world yz plane. It uses
 64 capsule segments with a chord correction to preserve the clear radius.
@@ -72,7 +87,7 @@ body centers and do not shrink the simulator's opening.
 
 The ring follows `enable_environment_contacts`: contacts are enabled by
 default; setting it to `false` keeps the gate visible without collisions.
-`enable_gate:=false` removes the ring entirely. After adding this macro to an
+Each gate's enable flag removes its ring when false. After adding this macro to an
 existing workspace, install it with:
 
 ```bash
@@ -346,5 +361,11 @@ The inertia remains diagonal: `diag(Ixx, Iyy, Izz)`. Mass and inertia are
 independent inputs; changing `quadrotor_mass` does not rescale the inertia.
 These arguments configure the MuJoCo plant. Controller model parameters remain
 configured separately, so use matching values there for nominal-model experiments.
+The non-LiDAR single-payload scene attaches the cable 5 cm below the quadrotor
+body origin (`payload_site_pos="0.0 0.0 -0.05"`). With a level quadrotor,
+`init_z:=1.5`, `payload_z:=0.5`, and equal x/y coordinates, the initial
+attachment-to-payload distance is `1.5 - 0.05 - 0.5 = 0.95 m`, matching the
+default cable length.
+
 Changing `cable_length` sets the tendon limit; initial positions remain the values
 supplied through the pose arguments.

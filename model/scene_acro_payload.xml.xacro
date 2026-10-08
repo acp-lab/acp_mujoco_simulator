@@ -19,11 +19,18 @@
   <xacro:arg name="cable_length" default="0.95"/>
   <!-- Optional gate: clear opening radius and full depth along world x. -->
   <xacro:arg name="enable_gate" default="false"/>
-  <xacro:arg name="gate_x" default="1.75"/>
+  <xacro:arg name="gate_x" default="2.0"/>
   <xacro:arg name="gate_y" default="0.0"/>
   <xacro:arg name="gate_z" default="2.0"/>
   <xacro:arg name="gate_radius" default="0.4"/>
   <xacro:arg name="gate_thickness" default="0.1"/>
+  <!-- Optional second gate for the multiple-gate TI-MPC planner. -->
+  <xacro:arg name="enable_second_gate" default="false"/>
+  <xacro:arg name="second_gate_x" default="3.5"/>
+  <xacro:arg name="second_gate_y" default="0.0"/>
+  <xacro:arg name="second_gate_z" default="2.0"/>
+  <xacro:arg name="second_gate_radius" default="0.4"/>
+  <xacro:arg name="second_gate_thickness" default="0.1"/>
   <xacro:arg name="meshdir" default="."/>
   <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
@@ -108,7 +115,14 @@
           opening_radius="$(arg gate_radius)" thickness="$(arg gate_thickness)"
           material="mat_gate"/>
     </xacro:if>
+    <xacro:if value="$(arg enable_second_gate)">
+      <xacro:circular_gate name="planner_gate_2"
+          pos="$(arg second_gate_x) $(arg second_gate_y) $(arg second_gate_z)"
+          opening_radius="$(arg second_gate_radius)" thickness="$(arg second_gate_thickness)"
+          material="mat_gate"/>
+    </xacro:if>
 
+    <!-- Attach the cable 5 cm below the quadrotor body origin. -->
     <xacro:quadrotor_body prefix="$(arg quad_name)"
                           pos="$(arg init_x) $(arg init_y) $(arg init_z)"
                           euler="$(arg init_roll) $(arg init_pitch) $(arg init_yaw)"
@@ -118,7 +132,8 @@
                           izz="$(arg quadrotor_izz)"
                           mesh_pos="$(arg mesh_pos)"
                           mesh_euler="$(arg mesh_euler)"
-                          primitive_alpha="$(arg primitive_alpha)" />
+                          primitive_alpha="$(arg primitive_alpha)"
+                          payload_site_pos="0.0 0.0 -0.05" />
 
 
     <body name="payload" pos="$(arg payload_x) $(arg payload_y) $(arg payload_z)">
