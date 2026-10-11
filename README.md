@@ -41,7 +41,7 @@ or headless executable change is needed.
 
 ## Optional payload gate
 
-The non-LiDAR payload launch has `enable_gate:=false` by default. Enable it with:
+The payload launches, with or without LiDAR, have `enable_gate:=false` by default. Enable it with:
 
 ```bash
 ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py \
@@ -94,6 +94,35 @@ existing workspace, install it with:
 colcon build --packages-select acp_mujoco_simulator acp_autonomy --symlink-install
 source install/setup.bash
 ```
+
+## Payload simulation with LiDAR
+
+The payload LiDAR launch accepts the same arguments and defaults as the payload launch
+above, including initial poses, masses, inertia, cable length, both gates,
+sensor rates, and headless duration:
+
+```bash
+source install/setup.bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_lidar_simulation_mujoco.launch.py \
+  quad_name:=eagle11 headless:=false \
+  init_x:=0.0 init_y:=0.0 init_z:=1.5 \
+  payload_x:=0.0 payload_y:=0.0 payload_z:=0.5 \
+  enable_gate:=true enable_second_gate:=true second_gate_x:=3.5
+```
+
+This launch runs a scene with one payload attached to the quadrotor.
+It retains the LiDAR environment and publishes Livox measurements on
+`/eagle11/livox/lidar` (`lidar_hz:=10` by default). The simulated quadrotor
+odometry remains ground truth; a separate LiDAR odometry estimator must process
+the LiDAR and IMU measurements to supply estimated odometry to TI-MPC/TI-MHE.
+This launch does not change controller or estimator parameters or subscriptions.
+
+The LiDAR scene retains its walls, landmarks, and ceiling. The ceiling underside
+is at z = 2.96 m; these obstacles also participate in collisions when
+`enable_environment_contacts:=true` (the default).
+
+Both gates are disabled by default. `duration_s` only stops headless runs;
+use `headless:=true duration_s:=10.0` for a ten-second simulation.
 
 ## 1. Create and Configure the Workspace
 
@@ -361,7 +390,7 @@ The inertia remains diagonal: `diag(Ixx, Iyy, Izz)`. Mass and inertia are
 independent inputs; changing `quadrotor_mass` does not rescale the inertia.
 These arguments configure the MuJoCo plant. Controller model parameters remain
 configured separately, so use matching values there for nominal-model experiments.
-The non-LiDAR single-payload scene attaches the cable 5 cm below the quadrotor
+The single-payload scenes, with or without LiDAR, attach the cable 5 cm below the quadrotor
 body origin (`payload_site_pos="0.0 0.0 -0.05"`). With a level quadrotor,
 `init_z:=1.5`, `payload_z:=0.5`, and equal x/y coordinates, the initial
 attachment-to-payload distance is `1.5 - 0.05 - 0.5 = 0.95 m`, matching the
