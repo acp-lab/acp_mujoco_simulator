@@ -315,10 +315,13 @@ colcon build \
   --packages-select mujoco_ros_utils \
   --cmake-args \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DMUJOCO_ROOT_DIR=$COLCON_WS_DIR/mujoco-3.4.0
+    -DMUJOCO_ROOT_DIR=$COLCON_WS_DIR/mujoco-3.10.0
 
 source install/setup.bash
 ```
+
+Use the same MuJoCo version that the lab wiki installs (3.10.0, "Station WorkSpace and
+Simulation Kilted"); built and tested with it on Kilted / Ubuntu 24.04.
 
 ---
 
