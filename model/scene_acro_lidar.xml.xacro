@@ -90,8 +90,8 @@
     <geom class="environment" name="tall_slab_left" type="box" pos="0.6 1.35 0.8" size="0.08 0.35 0.8" material="mat_gray" />
     <geom class="environment" name="low_crate_back" type="box" pos="6.7 -0.8 0.25" size="0.28 0.32 0.25" material="mat_cyan" />
     <geom class="environment" name="overhead_beam" type="box" pos="3.6 1.1 1.8" size="0.9 0.08 0.08" material="mat_gray" />
-    <geom class="environment" name="offset_panel" type="box" pos="2.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
-    <geom class="environment" name="wall_1" type="box" pos="2.5 0.9 1.05" euler="0 0 1.57" size="0.08 2.55 1.05" material="mat_red" />
+    <geom class="environment" name="offset_panel" type="box" pos="7.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
+    <!--<geom class="environment" name="wall_1" type="box" pos="2.5 0.9 1.05" euler="0 0 1.57" size="0.08 2.55 1.05" material="mat_red" />-->
 
 
     <xacro:quadrotor_body prefix="$(arg quad_name)"
