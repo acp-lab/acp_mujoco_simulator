@@ -82,15 +82,17 @@
     <geom class="environment" name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
     <geom class="environment" name="ceiling" type="box" pos="2.5 0 3.0" size="5.55 2.05 0.04" rgba="0.7 0.7 0.75 0.35"/>
 
-    <geom class="environment" name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
-    <geom class="environment" name="box_green" type="box" pos="4 -1 0.5" size="0.2 0.2 0.5" material="mat_green" />
-    <geom class="environment" name="box_blue" type="box" pos="6 1 0.5" size="0.2 0.2 0.5" material="mat_blue" />
+    <geom class="environment" name="box_red" type="box" pos="2 1.5 0.9" size="0.2 0.2 1.05" material="mat_red" />
+    <geom class="environment" name="box_green" type="box" pos="4 -1 0.9" size="0.2 0.2 1.05" material="mat_green" />
+    <geom class="environment" name="box_blue" type="box" pos="6.6 0 0.9" size="0.2 0.2 1.05" material="mat_blue" />
     <geom class="environment" name="pillar_cyan" type="cylinder" pos="1.2 -1.25 0.75" size="0.12 0.75" material="mat_cyan" />
-    <geom class="environment" name="pillar_yellow" type="cylinder" pos="5.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
+    <geom class="environment" name="pillar_yellow" type="cylinder" pos="7.2 1.35 1.1" size="0.10 1.1" material="mat_yellow" />
     <geom class="environment" name="tall_slab_left" type="box" pos="0.6 1.35 0.8" size="0.08 0.35 0.8" material="mat_gray" />
     <geom class="environment" name="low_crate_back" type="box" pos="6.7 -0.8 0.25" size="0.28 0.32 0.25" material="mat_cyan" />
     <geom class="environment" name="overhead_beam" type="box" pos="3.6 1.1 1.8" size="0.9 0.08 0.08" material="mat_gray" />
-    <geom class="environment" name="offset_panel" type="box" pos="7.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
+    <geom class="environment" name="offset_panel" type="box" pos="2.1 0.25 1.05" size="0.08 0.55 1.05" material="mat_red" />
+    <geom class="environment" name="wall_1" type="box" pos="2.5 0.9 1.05" euler="0 0 1.57" size="0.08 2.55 1.05" material="mat_red" />
+
 
     <xacro:quadrotor_body prefix="$(arg quad_name)"
                           pos="$(arg init_x) $(arg init_y) $(arg init_z)"
