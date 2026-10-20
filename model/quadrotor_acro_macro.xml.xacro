@@ -298,14 +298,14 @@
   </xacro:macro>
 
 
-  <xacro:macro name="quadrotor_actuators"
-               params="prefix control_hz:=240 acro_gyro_noise_density:=2.5e-3 acro_gyro_bias_rw:=0.0">
+  <!-- The plant can also be driven by an external flight controller. -->
+  <xacro:macro name="quadrotor_rotor_actuators" params="prefix delay_samples:=8">
     <plugin site="${prefix}_rotor1_site" name="${prefix}_rotor1"
             plugin="MujocoRosUtils::RotorMotor"
             actdim="1"
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 0.015"
-            nsample="8" delay="0.018" interp="zoh">
+            nsample="${delay_samples}" delay="0.018" interp="zoh">
       <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
@@ -314,7 +314,7 @@
             actdim="1"
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 -0.015"
-            nsample="8" delay="0.018" interp="zoh">
+            nsample="${delay_samples}" delay="0.018" interp="zoh">
       <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
@@ -323,7 +323,7 @@
             actdim="1"
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 -0.015"
-            nsample="8" delay="0.018" interp="zoh">
+            nsample="${delay_samples}" delay="0.018" interp="zoh">
       <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
@@ -332,11 +332,16 @@
             actdim="1"
             ctrlrange="0 3000.0"
             gear="0 0 1 0 0 0.015"
-            nsample="8" delay="0.018" interp="zoh">
+            nsample="${delay_samples}" delay="0.018" interp="zoh">
       <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
-    
+  </xacro:macro>
+
+  <xacro:macro name="quadrotor_actuators"
+               params="prefix control_hz:=240 acro_gyro_noise_density:=2.5e-3 acro_gyro_bias_rw:=0.0 controller_backend:=acro">
+    <xacro:quadrotor_rotor_actuators prefix="${prefix}" delay_samples="${32 if controller_backend == 'px4' else 8}"/>
+    <xacro:unless value="${controller_backend == 'px4'}">
     <plugin name="acro_ctrl_${prefix}" plugin="MujocoRosUtils::AcroMode" joint="${prefix}">
       <config key="actuator_r1"  value="${prefix}_rotor1"/>
       <config key="actuator_r2"  value="${prefix}_rotor2"/>
@@ -357,6 +362,15 @@
       <config key="gyro_bias_init_y" value="0.0"/>
       <config key="gyro_bias_init_z" value="0.0"/>
       <config key="gyro_range" value="0.0"/>
+    </plugin>
+    </xacro:unless>
+  </xacro:macro>
+
+  <xacro:macro name="quadrotor_mavlink" params="prefix simulator_port:=4560 csv_path:=''">
+    <plugin name="${prefix}_mavlink" plugin="MujocoRosUtils::MavlinkInterface">
+      <config key="body_name" value="${prefix}"/>
+      <config key="simulator_port" value="${simulator_port}"/>
+      <config key="csv_path" value="${csv_path}"/>
     </plugin>
   </xacro:macro>
 

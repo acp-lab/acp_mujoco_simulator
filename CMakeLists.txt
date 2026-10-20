@@ -55,6 +55,24 @@ ament_target_dependencies(mujoco_headless rclcpp)
 install(TARGETS mujoco_headless
   DESTINATION lib/${PROJECT_NAME})
 
+option(ACP_BUILD_PX4_BRIDGE "Build the optional PX4 MAVLink simulator runner" OFF)
+if(ACP_BUILD_PX4_BRIDGE)
+  find_path(MAVLINK_INCLUDE_DIR common/mavlink.h
+    HINTS "$ENV{PX4_DIR}/build/px4_sitl_default/mavlink")
+  if(NOT MAVLINK_INCLUDE_DIR)
+    message(FATAL_ERROR "Set MAVLINK_INCLUDE_DIR to PX4's generated build/px4_sitl_default/mavlink directory")
+  endif()
+  add_executable(mujoco_px4 src/mujoco_px4.cpp)
+  target_include_directories(mujoco_px4 PRIVATE ${MUJOCO_INCLUDE_DIR})
+  target_include_directories(mujoco_px4 SYSTEM PRIVATE ${MAVLINK_INCLUDE_DIR})
+  target_link_libraries(mujoco_px4 ${LIB_MUJOCO} dl)
+  ament_target_dependencies(mujoco_px4 rclcpp)
+  install(TARGETS mujoco_px4 DESTINATION lib/${PROJECT_NAME})
+endif()
+
+install(DIRECTORY scripts config launch DESTINATION share/${PROJECT_NAME}
+  PATTERN "__pycache__" EXCLUDE)
+
 install(DIRECTORY model
 DESTINATION share/${PROJECT_NAME})
 

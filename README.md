@@ -4,6 +4,204 @@
 
 At this point, you should have successfully installed all required **ACP Lab core packages**.
 
+## Direct PX4 SITL ↔ MuJoCo connection through MAVLink
+
+This optional implementation uses **PX4 v1.16.0**, commit
+`6ea3539157ca358c70a515878b77077af7d4611d`. It builds `px4_sitl_default`
+and keeps PX4 in the workspace's `.px4_runtime/` directory, outside the ROS
+package sources. The existing acro, payload and low-level launches retain their
+controllers and defaults.
+
+MuJoCo computes the vehicle dynamics and simulated sensors. PX4 runs its
+estimator, controllers and motor allocation, then sends motor commands back
+to MuJoCo. The connection uses PX4's external MAVLink simulator interface:
+
+```text
+MuJoCo sensors ── HIL_SENSOR / HIL_GPS ──> PX4 SITL
+MuJoCo rotors  <── HIL_ACTUATOR_CONTROLS ── PX4 SITL
+```
+
+The simulator connection and optional command client use separate ports:
+
+| Connection | Messages | Default port, instance 0 |
+| --- | --- | --- |
+| Application → PX4: desired body rates and collective thrust | `SET_ATTITUDE_TARGET`, plus commands/telemetry | Application listens on UDP `127.0.0.1:14540`; PX4 uses `14580` |
+| MuJoCo ↔ PX4: simulated sensors and motor outputs | `HIL_SENSOR`, `HIL_GPS`, `HIL_ACTUATOR_CONTROLS` | MuJoCo listens on TCP `127.0.0.1:4560`; PX4 connects |
+
+Relevant PX4 source:
+[MAVLink simulator](https://github.com/PX4/PX4-Autopilot/blob/v1.16.0/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp),
+[SITL MAVLink ports](https://github.com/PX4/PX4-Autopilot/blob/v1.16.0/ROMFS/px4fmu_common/init.d-posix/px4-rc.mavlink).
+
+### Build the pinned PX4 baseline
+
+From the ROS workspace root:
+
+```bash
+export ACP_WS="$PWD"
+bash src/acp_mujoco_simulator/scripts/setup_px4_sitl.sh "$ACP_WS"
+```
+
+The setup script uses an isolated Python environment with access to the system
+ROS Python packages. It requires a C/C++ build toolchain, CMake, Ninja, Git,
+and either `uv` or Python's `venv` support. It downloads the SITL submodules
+and Python build dependencies; it does not install system packages. The standard
+PX4 build includes its DDS client, but this integration needs no DDS agent,
+`px4_msgs`, MAVROS, or Gazebo.
+
+### Build the MuJoCo bridge
+
+Build the optional C++ runner after building PX4:
+
+```bash
+source install/setup.bash
+colcon build --packages-select acp_mujoco_simulator --symlink-install \
+  --cmake-args \
+  -DACP_BUILD_PX4_BRIDGE=ON \
+  -DMUJOCO_ROOT_DIR="$PWD/mujoco-3.10.0" \
+  -DMAVLINK_INCLUDE_DIR="$PWD/.px4_runtime/PX4-Autopilot/build/px4_sitl_default/mavlink"
+source install/setup.bash
+```
+
+### Start the connection
+
+In terminal 1, from the workspace root, start the MuJoCo plant:
+
+```bash
+source install/setup.bash
+ROS_DOMAIN_ID=147 ros2 launch acp_mujoco_simulator px4_mujoco.launch.py \
+  mujoco_plugin_dir:="$PWD/mujoco-3.10.0/bin/mujoco_plugin" \
+  run_dir:=/tmp/acp_px4_mujoco
+```
+
+In terminal 2, start PX4 with the MuJoCo parameters:
+
+```bash
+ROS_DOMAIN_ID=147 python3 src/acp_mujoco_simulator/scripts/run_px4_sitl.py \
+  --px4-dir .px4_runtime/PX4-Autopilot \
+  --run-dir .px4_runtime/mujoco
+```
+
+This uses PX4's `none_iris` startup as the external-simulator entry point and
+overrides its rotor geometry, thrust curve, hover thrust, rate gains and sensor
+configuration with `config/px4_mujoco.json`. It does not use the Iris physical
+model. PX4 stores its parameters and logs in the supplied `--run-dir`.
+
+Wait for the bridge's `lockstep active` message and PX4 readiness. The simulator
+connection is now running; no command client is required to keep it connected.
+
+Useful commands at the `pxh>` prompt:
+
+```text
+simulator_mavlink status
+mavlink status
+listener sensor_combined
+listener actuator_outputs_sim
+shutdown
+```
+
+Stop PX4 with `shutdown`, then stop the ROS launch. A disconnected or stalled
+PX4 connection stops the physics runner with an explicit error.
+
+### Optional connection and flight checks
+
+In terminal 3, observe PX4 telemetry without arming:
+
+```bash
+.px4_runtime/python/bin/python \
+  src/acp_mujoco_simulator/scripts/px4_mavlink_rates.py monitor --duration 5
+```
+
+To exercise the connection with a short body-rate command:
+
+```bash
+.px4_runtime/python/bin/python \
+  src/acp_mujoco_simulator/scripts/px4_mavlink_rates.py \
+  probe --arm --thrust 0.17 --axis yaw --duration 5 \
+  --output /tmp/acp_mujoco_rate_probe.csv
+```
+
+The probe streams zero rates before requesting Offboard mode, checks the mode
+and arm acknowledgements, commands a +0.2 then −0.2 rad/s pulse, requests PX4
+landing, and disarms after PX4 reports ground contact. Thrust is fixed during
+the rate probe, so altitude is not held. This uses PX4's body-rate controller
+through Offboard setpoints; it does not select manual Acro mode.
+Only one command client should bind a given offboard UDP port at a time.
+
+Repeat with `--axis roll` or `--axis pitch`. Inspect the actual plant data in
+`/tmp/acp_px4_mujoco/plant.csv` and PX4 telemetry in the probe CSV.
+
+For a different port set, give PX4 `--instance 1`, launch
+MuJoCo with `simulator_port:=4561`, and pass `--port 14541` before the client's
+`monitor`, `probe`, or `ros` subcommand.
+
+### Connect an existing ROS 2 outer controller
+
+For the supplied MuJoCo model, full collective thrust is
+`4 × 2.063751543951938e-6 × 3000² = 74.2950555823 N`.
+
+```bash
+source install/setup.bash
+ROS_DOMAIN_ID=147 .px4_runtime/python/bin/python \
+  src/acp_mujoco_simulator/scripts/px4_mavlink_rates.py \
+  ros --topic /quadrotor/trpy_cmd --max-thrust 74.2950555823
+```
+
+The adapter reads `TRPYCommand.thrust` in newtons and `angular_velocity` in
+body FLU rad/s. It maps rates to FRD as `[p, -q, -r]` and sends normalized
+collective thrust. Publish fresh commands continuously; then use
+`commander mode offboard` and `commander arm` in the PX4 console.
+The adapter never arms automatically. It stops sending rate setpoints when
+commands are more than 0.2 wall-clock seconds old, allowing PX4's configured
+Offboard-loss action to run. It rejects nonfinite and out-of-range commands.
+All ROS nodes exchanging commands must use the same ROS domain.
+
+The thrust scaling must be changed if the plant or PX4 thrust mapping changes.
+
+### Implementation boundaries and checks
+
+- `scene_px4.xml.xacro` contains one quadrotor, four `RotorMotor` actuators,
+  IMU/odometry publishers and `/clock`. It instantiates no `AcroMode` controller.
+  The first implementation is headless; payloads, cameras and LiDAR are not
+  instantiated in this dedicated scene yet.
+- `mujoco_px4.cpp` exchanges sensors and actuators at 250 Hz with four 1 ms
+  physics substeps. Networking runs outside MuJoCo's RK4 plugin callbacks.
+  Startup freewheels until the first actuator packet, then requires an actuator
+  response within two wall-clock seconds. The runner is paced at approximately
+  real time and stops on a broken connection; reconnect/reset and accelerated
+  runs are not implemented.
+- The original rotor plant retains 18 ms command delay, a 25 ms motor time
+  constant, and `f=kf*omega²`. PX4's `THR_MDL_FAC=1` applies square-root thrust
+  linearization; the bridge maps its output linearly to `omega=3000*u`.
+  Motor channels 1–4 correspond directly to model rotors 1–4. The configured
+  FRD rotor positions and yaw torque signs match those MuJoCo sites/gears.
+- The initial IMU is ideal. Accelerometers transmit specific force, with no
+  second gravity subtraction. GPS is derived from ground truth at a fixed
+  Zurich origin. Magnetometer data use an approximate fixed world magnetic
+  field with 0.5 mGauss RMS noise. Barometric pressure includes 1 Pa RMS noise.
+  The random seed is 42; perfectly constant ideal magnetic/pressure readings
+  otherwise trigger PX4's stuck-sensor detectors.
+  Ground-truth attitude is not injected into PX4's estimator.
+- The rate gains are an initial simulation baseline, not a completed tuning
+  exercise or hardware configuration.
+
+Run the behavioral wire/physics checks with:
+
+```bash
+source install/setup.bash
+.px4_runtime/python/bin/python \
+  src/acp_mujoco_simulator/scripts/test_px4_bridge.py \
+  --plugins "$PWD/mujoco-3.10.0/bin/mujoco_plugin"
+```
+
+These use a fake PX4 TCP peer to check stationary IMU signs, timestamp
+progression, each physical rotor's torque signs, disarmed motor suppression,
+fragmented MAVLink frames, nonfinite commands, disconnects and actuator timeouts.
+The optional MuJoCo flight probe above exercises the real PX4 executable.
+
+Validated with the pinned PX4 build and MuJoCo 3.10.0: all nine bridge checks
+passed. A five-second pitch probe commanded +0.2 and −0.2 rad/s and measured
+approximately +0.193 and −0.190 rad/s during the settled parts of each pulse.
+PX4 completed takeoff, landing and disarming through the direct connection.
 
 To use the **ACP MuJoCo Simulator** for payload transportation, we recommend creating a **dedicated ROS 2 workspace**:
 

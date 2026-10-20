@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="ACP PX4 quadrotor">
+  <xacro:arg name="quad_name" default="quadrotor"/>
+  <xacro:arg name="init_z" default="0.03"/>
+  <xacro:include filename="quadrotor_acro_macro.xml.xacro"/>
+  <compiler angle="radian"/>
+  <!-- Four physics substeps per 250 Hz MAVLink sensor/actuator exchange.
+       32 delay samples cover the existing 18 ms motor-command delay. -->
+  <option timestep="0.001" gravity="0 0 -9.81" density="1.225"
+          viscosity="1.8e-05" integrator="RK4"/>
+  <extension>
+    <plugin plugin="MujocoRosUtils::RotorMotor"/>
+    <plugin plugin="MujocoRosUtils::ClockPublisher"/>
+    <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
+    <plugin plugin="MujocoRosUtils::ImuPublisher"/>
+  </extension>
+  <asset>
+    <xacro:quadrotor_visual_assets/>
+    <texture name="floor_tex" type="2d" builtin="checker" width="128" height="128"
+             rgb1=".15 .2 .25" rgb2=".3 .35 .4"/>
+    <material name="floor_mat" texture="floor_tex" texrepeat="10 10" texuniform="true"/>
+  </asset>
+  <worldbody>
+    <plugin plugin="MujocoRosUtils::ClockPublisher">
+      <config key="topic_name" value="/clock"/>
+      <config key="publish_rate" value="250"/>
+      <config key="use_sim_time" value="true"/>
+    </plugin>
+    <light pos="0 0 5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="20 20 .1" material="floor_mat"/>
+    <xacro:quadrotor_body prefix="$(arg quad_name)" pos="0 0 $(arg init_z)"/>
+  </worldbody>
+  <actuator>
+    <xacro:quadrotor_rotor_actuators prefix="$(arg quad_name)" delay_samples="32"/>
+  </actuator>
+  <sensor>
+    <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)"/>
+    <!-- Initial integration uses ideal IMU measurements on both interfaces.
+         Sensor realism can be added after the interface is validated. -->
+    <xacro:quadrotor_sensor_plugins prefix="$(arg quad_name)"
+        odom_hz="100" imu_hz="250"
+        imu_gyro_noise_density="0" imu_accel_noise_density="0"/>
+  </sensor>
+</mujoco>
