@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Multi-Drone Scene">
+  <xacro:arg name="controller_backend" default="acro"/>
   <xacro:arg name="meshdir" default="."/>
   <xacro:arg name="mesh_pos" default="-0.17 -0.16 -0.1"/>
   <xacro:arg name="mesh_euler" default="0 1.57 1.57079632679"/>
@@ -24,6 +25,9 @@
   </default>
 
   <extension>
+    <xacro:if value="${'$(arg controller_backend)' == 'px4'}">
+      <plugin plugin="MujocoRosUtils::MavlinkInterface"/>
+    </xacro:if>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
     <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
     <plugin plugin="MujocoRosUtils::SensorPublisher"/>

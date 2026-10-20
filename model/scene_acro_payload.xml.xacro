@@ -2,6 +2,8 @@
 <mujoco xmlns:xacro="http://www.ros.org/wiki/xacro" model="Single-Drone Payload Scene">
   
   <xacro:arg name="quad_name" default="quadrotor"/>
+  <xacro:arg name="controller_backend" default="acro"/>
+  <xacro:arg name="px4_simulator_port" default="4560"/>
   <xacro:arg name="init_x" default="0.0"/>
   <xacro:arg name="init_y" default="0.0"/>
   <xacro:arg name="init_z" default="0.02"/>
@@ -69,6 +71,9 @@
   </default>
 
   <extension>
+    <xacro:if value="${'$(arg controller_backend)' == 'px4'}">
+      <plugin plugin="MujocoRosUtils::MavlinkInterface"/>
+    </xacro:if>
     <plugin plugin="MujocoRosUtils::WrenchToActuators"/>
     <plugin plugin="MujocoRosUtils::OdometryPublisher"/>
     <plugin plugin="MujocoRosUtils::SensorPublisher"/>
@@ -158,6 +163,7 @@
   <actuator>
     <xacro:quadrotor_actuators
         prefix="$(arg quad_name)"
+        controller_backend="$(arg controller_backend)"
         control_hz="$(arg control_hz)"
         acro_gyro_noise_density="$(arg acro_gyro_noise_density)"
         acro_gyro_bias_rw="$(arg acro_gyro_bias_rw)" />
@@ -171,6 +177,9 @@
   </tendon>
 
   <sensor>
+    <xacro:if value="${'$(arg controller_backend)' == 'px4'}">
+      <xacro:quadrotor_mavlink prefix="$(arg quad_name)" simulator_port="$(arg px4_simulator_port)"/>
+    </xacro:if>
     <xacro:quadrotor_physical_sensors prefix="$(arg quad_name)" />
     <xacro:quadrotor_sensor_plugins
         prefix="$(arg quad_name)"
