@@ -1,0 +1,29 @@
+# Two quadrotors connected by separate cables to one point-mass payload.
+# Positions are world coordinates [m]; roll, pitch, and yaw are in radians.
+# Eagle8 starts at the horizontal origin; eagle10 is 1 m behind along -x.
+# Both vehicles start near the ground at z=0.03 m, with slack cables.
+# The shared multi-quadrotor scene uses a 0.95 m cable for each vehicle,
+# an attachment 0.05 m below the body origin, and a 1.24 kg quadrotor.
+# The payload is centered between them, resting on the ground (radius 0.035 m).
+payload_mujoco:
+  name: "payload"
+  position: [-0.5, 0.0, 0.035]
+  size: 0.035
+  mass: 0.2
+  rgba: "0 0 1 0.8"
+  site_name: "payload_connection_site"
+
+quadrotors_mujoco:
+  - name: "eagle8"
+    position: [0.0, 0.0, 0.03]
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 0.0
+
+  - name: "eagle10"
+    position: [-1.0, 0.0, 0.03]
+    orientation:
+      roll: 0.0
+      pitch: 0.0
+      yaw: 0.0

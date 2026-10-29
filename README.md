@@ -13,6 +13,57 @@ payload_transportation_ws
 
 ---
 
+## Two quadrotors carrying one payload
+
+The multi-quadrotor launch creates one vehicle and cable for each entry in
+`quadrotors_mujoco`. The two-quadrotor launches select
+`config/two_quadrotors_payload.yaml`, using the same scene generator as
+`acp_autonomy/config/eagle/default/dq_multiple.yaml`.
+
+Build and source the packages once after adding these files:
+
+```bash
+colcon build --packages-select acp_mujoco_simulator acp_autonomy --symlink-install
+source install/setup.bash
+```
+
+Without LiDAR:
+
+```bash
+ros2 launch acp_autonomy two_quadrotor_payload_nmpc_acro_simulation_mujoco.launch.py
+```
+
+With one LiDAR on each quadrotor:
+
+```bash
+ros2 launch acp_autonomy two_quadrotor_payload_nmpc_acro_lidar_simulation_mujoco.launch.py
+```
+
+Both accept the existing multi-quadrotor launch arguments, including
+`headless:=true`, `cpu_cores`, sensor rates, and `enable_environment_contacts`.
+Edit the scenario YAML to change vehicle names, initial positions/orientations,
+or payload mass. A separate YAML can be selected with `multiple_config:=/path/to/scenario.yaml`;
+this also works directly with the original `multiple_quadrotor_*` launches.
+
+The default scenario contains `eagle8` and `eagle10`, at
+`[0, 0, 0.03]` and `[-1, 0, 0.03]` m, connected to one shared
+0.2 kg payload at `[-0.5, 0, 0.035]` m. Eagle8 is at the horizontal origin
+and eagle10 is behind it along negative x. Both vehicles start near the ground,
+with the payload resting on the floor between them and both cables slack.
+Initial attitudes are level and initial velocities are zero.
+The shared multi-quadrotor model retains its existing defaults:
+1.24 kg per vehicle, 0.95 m cables, and suspension sites 0.05 m below the
+quadrotor body origins. Those three parameters are currently defined in the
+multi-quadrotor renderer/body macro, rather than read from this scenario YAML.
+
+Each vehicle publishes `/<name>/odom`, `/<name>/imu`, `/<name>/betaflight`, and
+`/<name>/payload/odom`. Both payload odometry topics describe the same payload.
+Tension is published on `/eagle8/rope0/tension` and `/eagle10/rope1/tension`.
+The LiDAR variant additionally publishes `/eagle8/livox/lidar` and
+`/eagle10/livox/lidar`. Commands are received on `/<name>/trpy_cmd`.
+These launches start the simulator; cooperative controllers and LiDAR odometry
+estimators are launched separately.
+
 ## Optional environment contacts in acro scenes
 
 The acro launch files in `acp_autonomy` expose

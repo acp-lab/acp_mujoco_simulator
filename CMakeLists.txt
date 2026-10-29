@@ -55,7 +55,7 @@ ament_target_dependencies(mujoco_headless rclcpp)
 install(TARGETS mujoco_headless
   DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY model
+install(DIRECTORY model config
 DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
