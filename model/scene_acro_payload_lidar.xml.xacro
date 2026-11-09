@@ -75,6 +75,7 @@
     <plugin plugin="MujocoRosUtils::ImuPublisher"/>
     <plugin plugin="MujocoRosUtils::LidarPublisher"/>
     <plugin plugin="MujocoRosUtils::TensionPublisher"/>
+    <plugin plugin="MujocoRosUtils::ExternalForce"/>
     <plugin plugin="MujocoRosUtils::RotorMotor"/>
     <plugin plugin="MujocoRosUtils::AcroMode"/>
     <plugin plugin="MujocoRosUtils::LowLevelMode"/>
@@ -152,6 +153,10 @@
       <joint name="payload_z" type="slide" axis="0 0 1" damping="0.06"/>
       <geom type="sphere" size="0.035" rgba="0 0 1 0.8" mass="$(arg payload_mass)"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
+      <plugin plugin="MujocoRosUtils::ExternalForce">
+        <config key="topic_name" value="/$(arg quad_name)/payload/external_force"/>
+        <config key="applied_force_topic" value="/$(arg quad_name)/payload/applied_external_force"/>
+      </plugin>
     </body>
 
     <geom class="environment" name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
