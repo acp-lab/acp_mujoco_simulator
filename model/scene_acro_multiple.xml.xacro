@@ -16,6 +16,7 @@
   <xacro:arg name="init_roll_2"  default="0.0"/>
   <xacro:arg name="init_pitch_2" default="0.0"/>
   <xacro:arg name="init_yaw_2"   default="0.0"/>
+  <xacro:arg name="enable_rotor_allocation" default="true"/>
 
 
   <xacro:include filename="quadrotor_acro_macro.xml.xacro" />
@@ -81,8 +82,10 @@
   </worldbody>
 
   <actuator>
-    <xacro:quadrotor_actuators prefix="$(arg quad_name_1)" />
-    <xacro:quadrotor_actuators prefix="$(arg quad_name_2)" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name_1)"
+        enable_rotor_allocation="$(arg enable_rotor_allocation)" />
+    <xacro:quadrotor_actuators prefix="$(arg quad_name_2)"
+        enable_rotor_allocation="$(arg enable_rotor_allocation)" />
   </actuator>
 
   <sensor>

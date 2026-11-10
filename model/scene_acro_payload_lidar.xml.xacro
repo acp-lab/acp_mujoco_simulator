@@ -41,6 +41,7 @@
   <xacro:arg name="imu_hz" default="350"/>
   <xacro:arg name="odom_hz" default="240"/>
   <xacro:arg name="control_hz" default="240"/>
+  <xacro:arg name="enable_rotor_allocation" default="true"/>
   <xacro:arg name="payload_odom_hz" default="240"/>
   <xacro:arg name="tension_hz" default="100"/>
   <xacro:arg name="clock_hz" default="400"/>
@@ -173,6 +174,7 @@
     <xacro:quadrotor_actuators
         prefix="$(arg quad_name)"
         control_hz="$(arg control_hz)"
+        enable_rotor_allocation="$(arg enable_rotor_allocation)"
         acro_gyro_noise_density="$(arg acro_gyro_noise_density)"
         acro_gyro_bias_rw="$(arg acro_gyro_bias_rw)" />
   </actuator>

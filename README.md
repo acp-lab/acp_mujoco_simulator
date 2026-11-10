@@ -64,6 +64,29 @@ The LiDAR variant additionally publishes `/eagle8/livox/lidar` and
 These launches start the simulator; cooperative controllers and LiDAR odometry
 estimators are launched separately.
 
+## Rotor allocation or direct body actuation
+
+All Acro simulator launches in `acp_autonomy` accept
+`enable_rotor_allocation:=true|false`, including the single-quadrotor, payload,
+gate, two-quadrotor and multi-quadrotor launches, with or without LiDAR.
+
+- `true` (default): allocate the Acro controller's wrench to four rotors,
+  including rotor limits and motor dynamics.
+- `false`: keep the Acro angular-rate controller and apply its force and moments
+  directly to the body, bypassing allocation, rotor limits and motor dynamics.
+  This is an ideal-actuation diagnostic, not a motor shutdown command.
+
+```bash
+ros2 launch acp_autonomy single_quadrotor_payload_nmpc_acro_lidar_simulation_mujoco.launch.py \
+  quad_name:=eagle11 enable_rotor_allocation:=false
+```
+
+The same flag works in viewer and headless mode. In multi-quadrotor scenes it
+applies to every vehicle. Motor-speed telemetry is unavailable (`NaN`) in direct
+mode; odometry, IMU and cable-tension sensors remain active. The flag belongs to
+the simulator launch, not the controller launch. SO3 and low-level motor-command
+scenes use separate actuation models and do not expose this switch.
+
 ## Optional environment contacts in acro scenes
 
 The acro launch files in `acp_autonomy` expose
