@@ -299,7 +299,8 @@
 
 
   <xacro:macro name="quadrotor_actuators"
-               params="prefix control_hz:=240 acro_gyro_noise_density:=2.5e-3 acro_gyro_bias_rw:=0.0">
+               params="prefix control_hz:=240 acro_gyro_noise_density:=2.5e-3 acro_gyro_bias_rw:=0.0 enable_rotor_allocation:=true">
+    <xacro:if value="${enable_rotor_allocation}">
     <plugin site="${prefix}_rotor1_site" name="${prefix}_rotor1"
             plugin="MujocoRosUtils::RotorMotor"
             actdim="1"
@@ -336,12 +337,33 @@
       <config key="kf" value="2.063751543951938e-06"/>
       <config key="tau" value="0.025"/>
     </plugin>
+    </xacro:if>
+
+    <!-- Diagnostic mode: keep the Acro rate loop, bypass allocation and motor dynamics. -->
+    <xacro:unless value="${enable_rotor_allocation}">
+      <motor site="${prefix}_thrust" name="${prefix}_body_thrust"
+             ctrllimited="false" forcelimited="false" gear="0 0 1 0 0 0"/>
+      <motor site="${prefix}_rateX" name="${prefix}_x_moment"
+             ctrllimited="false" forcelimited="false" gear="0 0 0 1 0 0"/>
+      <motor site="${prefix}_rateY" name="${prefix}_y_moment"
+             ctrllimited="false" forcelimited="false" gear="0 0 0 0 1 0"/>
+      <motor site="${prefix}_rateZ" name="${prefix}_z_moment"
+             ctrllimited="false" forcelimited="false" gear="0 0 0 0 0 1"/>
+    </xacro:unless>
     
     <plugin name="acro_ctrl_${prefix}" plugin="MujocoRosUtils::AcroMode" joint="${prefix}">
+      <xacro:if value="${enable_rotor_allocation}">
       <config key="actuator_r1"  value="${prefix}_rotor1"/>
       <config key="actuator_r2"  value="${prefix}_rotor2"/>
       <config key="actuator_r3"  value="${prefix}_rotor3"/>
       <config key="actuator_r4"  value="${prefix}_rotor4"/>
+      </xacro:if>
+      <xacro:unless value="${enable_rotor_allocation}">
+        <config key="actuator_fz" value="${prefix}_body_thrust"/>
+        <config key="actuator_tx" value="${prefix}_x_moment"/>
+        <config key="actuator_ty" value="${prefix}_y_moment"/>
+        <config key="actuator_tz" value="${prefix}_z_moment"/>
+      </xacro:unless>
       <config key="rotor_actuator_model" value="speed"/>
       <config key="rotor_kf" value="2.063751543951938e-06"/>
       <config key="betaflight_topic" value="betaflight"/>
