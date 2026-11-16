@@ -7,7 +7,7 @@
 # The payload is centered between them, resting on the ground (radius 0.035 m).
 payload_mujoco:
   name: "payload"
-  position: [-0.5, 0.0, 0.035]
+  position: [-0.5, 0.0, 0.6]
   size: 0.035
   mass: 0.2
   rgba: "0 0 1 0.8"
@@ -15,15 +15,15 @@ payload_mujoco:
 
 quadrotors_mujoco:
   - name: "eagle8"
-    position: [0.0, 0.0, 0.03]
+    position: [0.0, 0.0, 1.5]
     orientation:
       roll: 0.0
       pitch: 0.0
       yaw: 0.0
 
   - name: "eagle10"
-    position: [-1.0, 0.0, 0.03]
+    position: [-1.0, 0.0, 1.5]
     orientation:
       roll: 0.0
       pitch: 0.0
-      yaw: 0.52
+      yaw: 0.0
