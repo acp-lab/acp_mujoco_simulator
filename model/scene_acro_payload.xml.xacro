@@ -87,6 +87,11 @@
     <material name="mat_green" rgba="0.1 0.8 0.1 1" reflectance="0.01" shininess="0.01" specular="0.0" />
     <material name="mat_blue"  rgba="0.1 0.1 0.8 1" reflectance="0.01" shininess="0.01" specular="0.0" />
     <material name="mat_gate" rgba="0.95 0.25 0.15 1" reflectance="0.05" shininess="0.05" specular="0.1"/>
+    <material name="white_background"
+          rgba="1 1 1 1"
+          emission="1"
+          specular="0"
+          reflectance="0"/>
     <xacro:quadrotor_visual_assets />
 
     <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
@@ -105,12 +110,12 @@
     </plugin>
 
     <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
-    <geom class="environment" name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <geom class="environment" name="floor" size="0 0 0.05" type="plane" material="white_background"/>
 
 
-    <geom class="environment" name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
+    <!--<geom class="environment" name="box_red" type="box" pos="2 1 0.1" size="0.2 0.2 0.1" material="mat_red" />
     <geom class="environment" name="box_green" type="box" pos="4 -1 0.1" size="0.2 0.2 0.1" material="mat_green" />
-    <geom class="environment" name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />
+    <geom class="environment" name="box_blue" type="box" pos="6 1 0.1" size="0.2 0.2 0.1" material="mat_blue" />-->
 
     <xacro:if value="$(arg enable_gate)">
       <xacro:circular_gate name="planner_gate"
@@ -143,7 +148,7 @@
       <joint name="payload_x" type="slide" axis="1 0 0" damping="0.06"/>
       <joint name="payload_y" type="slide" axis="0 1 0" damping="0.06"/>
       <joint name="payload_z" type="slide" axis="0 0 1" damping="0.06"/>
-      <geom type="sphere" size="0.035" rgba="1 1 1 0.5" mass="$(arg payload_mass)"/>
+      <geom type="sphere" size="0.035" rgba="0 0 1 1" mass="$(arg payload_mass)"/>
       <site name="payload_connection_site" pos="0.0 0.0 0.0"/>
       <plugin plugin="MujocoRosUtils::ExternalForce">
         <config key="topic_name" value="/$(arg quad_name)/payload/external_force"/>
@@ -153,12 +158,19 @@
 
     <geom class="environment" name="wall_back" type="box" pos="-3 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
     <geom class="environment" name="wall_front" type="box" pos="8 0 1.5" size="0.05 2 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom class="environment" name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
-    <geom class="environment" name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>
+    <!--<geom class="environment" name="wall_left" type="box" pos="2.5 2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>-->
+    <!--<geom class="environment" name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" rgba="0.8 0.8 0.8 0.2"/>-->
+    <geom class="environment" name="wall_right" type="box" pos="2.5 -2 1.5" size="5.5 0.05 1.5" material="white_background"/>
+
 
     <geom name="origin_x" type="cylinder" fromto="0 0 0.01 0.5 0 0.01" size="0.01" rgba="1 0 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_y" type="cylinder" fromto="0 0 0.01 0 0.5 0.01" size="0.01" rgba="0 1 0 0.1" contype="0" conaffinity="0" group="1"/>
     <geom name="origin_z" type="cylinder" fromto="0 0 0.01 0 0 0.51" size="0.01" rgba="0 0 1 0.1" contype="0" conaffinity="0" group="1"/>
+    <camera name="external_camera"
+        pos="2.0 5 3"
+        mode="fixed"
+        xyaxes="-1 0 0 0 -0.196116 0.980581"
+        fovy="45"/>
   </worldbody>
 
   <actuator>
